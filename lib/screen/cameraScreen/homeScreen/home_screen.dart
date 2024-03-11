@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import 'package:sign_language_record_app/screen/listScreen/list_screen.dart';
+import 'package:sign_language_record_app/screen/reverseSignScreen/reverse_screen.dart';
 import 'package:sign_language_record_app/screen/videoEditorScreen/video_editor_screen.dart';
 import 'package:sign_language_record_app/widget/app_button.dart';
 
@@ -65,6 +66,15 @@ class _HomeScreenState extends State<HomeScreen> {
             height: 12,
           ),
           AppButton(text: "Trim Videos", onPressed: () => _pickVideo()),
+          const SizedBox(
+            height: 12,
+          ),
+          AppButton(
+              text: "Reverse Sign",
+              onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (cobetext) => const ReverseScreen()))),
         ]),
       ),
     );

@@ -65,6 +65,26 @@ class DictionaryAPi with ChangeNotifier {
     return videoExtensions.contains(extension);
   }
 
+  void getReverseSignVideo(String text) async {
+    state = 3;
+    notifyListeners();
+    final response =
+        await http.get(Uri.parse('http://10.0.2.2:8000/search/${text}'));
+    print("object2");
+
+    if (response.statusCode == 200) {
+      state = 4;
+      print(state.toString());
+      notifyListeners();
+      // If the server returns a 200 OK response, parse the JSON
+    } else {
+      // If the server did not return a 200 OK response,
+      // throw an exception.
+      throw Exception('Failed to load data');
+    }
+    notifyListeners();
+  }
+
   @override
   void notifyListeners() {
     // TODO: implement notifyListeners
