@@ -1,11 +1,10 @@
-// ignore_for_file: depend_on_referenced_packages
+// ignore_for_file: depend_on_referenced_packages, prefer_const_constructors
 
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:sign_language_record_app/Api/dictionary_api.dart';
 import 'package:provider/provider.dart';
-import 'package:sign_language_record_app/modle/dictionary_modle.dart';
 import 'package:sign_language_record_app/widget/app_button.dart';
 
 class ListScreen extends StatefulWidget {
@@ -20,7 +19,6 @@ class _ListScreenState extends State<ListScreen> {
   @override
   void initState() {
     _future = context.read<DictionaryAPi>().getDectionary();
-    // TODO: implement initState
     super.initState();
   }
 
@@ -76,32 +74,30 @@ class _ListScreenState extends State<ListScreen> {
           ),
         ),
         SwitchWidget(),
-        Text(context
-            .watch<DictionaryAPi>()
-            .filteredDictionary
-            .length
-            .toString()),
       ],
     );
   }
 }
 
 class SwitchWidget extends StatelessWidget {
-  final String switchCase =
-      'case1'; // Change this value based on your condition
+  final String switchCase = 'case1';
+
+  const SwitchWidget({super.key}); // Change this value based on your condition
 
   @override
   Widget build(BuildContext context) {
-    switch (context.watch<DictionaryAPi>().state) {
-      case 1:
+    switch (context.watch<DictionaryAPi>().dictionaryState) {
+      case DictionaryState.initial:
         return SizedBox.shrink();
-      case 2:
+      case DictionaryState.fetch:
         return Scaffold(
           backgroundColor: Colors.grey.withOpacity(0.6),
           body: Center(
             child: CircularProgressIndicator(),
           ),
         );
+      case DictionaryState.done:
+        return SizedBox.shrink();
 
       default:
         return Container(

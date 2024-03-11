@@ -1,6 +1,7 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 import 'dart:isolate';
-import 'dart:io';
 import 'package:sign_language_record_app/provider/signDetectState/sign_detect_state_Provider.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:flutter/material.dart';
@@ -77,8 +78,7 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
   // Send bytes to server
 
   void _startStreaming() async {
-    // _channel = IOWebSocketChannel.connect("ws://10.0.2.2:8000/ws/stream/");
-    print("connected");
+    _channel = IOWebSocketChannel.connect("ws://10.0.2.2:8000/ws/stream/");
     await _initializeControllerFuture;
     _controller.startImageStream((CameraImage image) {
       _sendCameraImageToIsolate(
@@ -90,7 +90,7 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Live Video Streaming')),
+      appBar: AppBar(title: const Text('Live Video Streaming')),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -115,11 +115,11 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
                   return RotatedBox(
-                    child: CameraPreview(_controller),
                     quarterTurns: -1,
+                    child: CameraPreview(_controller),
                   );
                 } else {
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 }
               },
             ),
@@ -133,7 +133,7 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
                           ref.updateState(StreamState.start);
                           _startStreaming();
                         },
-                        child: Text("Start Stream"),
+                        child: const Text("Start Stream"),
                       );
                     } else {
                       return ElevatedButton(
@@ -141,20 +141,11 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
                           ref.updateState(StreamState.initial);
                           await _controller.stopImageStream();
                         },
-                        child: Text("Stop Stream"),
+                        child: const Text("Stop Stream"),
                       );
                     }
                   })
-                : CircularProgressIndicator(),
-            StreamBuilder(
-                stream: _channel.stream,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Text(snapshot.data.toString());
-                  } else {
-                    return CircularProgressIndicator();
-                  }
-                })
+                : const CircularProgressIndicator(),
           ],
         ),
       ),
@@ -163,25 +154,25 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
 }
 
 void _sendVideoStream(
-    Uint8List? data, BuildContext context, IOWebSocketChannel _channel) {
+    Uint8List? data, BuildContext context, IOWebSocketChannel channel) {
   if (data != null && context.read<SignProvider>().state == StreamState.start) {
-    String new_data = base64Encode(data);
-    _channel.sink.add(new_data);
+    String newData = base64Encode(data);
+    channel.sink.add(newData);
     // context.read<IProvider>().updateImage(data);
   }
 }
 
 void _sendCameraImageToIsolate(
     CameraImage image,
-    SendPort _imageProcessingSendPort,
+    SendPort imageProcessingSendPort,
     BuildContext context,
-    IOWebSocketChannel _channel) async {
+    IOWebSocketChannel channel) async {
   final replyPort = ReceivePort();
-  _imageProcessingSendPort
+  imageProcessingSendPort
       .send(_ImageProcessingMessage(image, replyPort.sendPort));
   final Uint8List? bytes = await replyPort.first;
   if (bytes != null) {
-    _sendVideoStream(Uint8List.fromList(bytes), context, _channel);
+    _sendVideoStream(Uint8List.fromList(bytes), context, channel);
   }
   replyPort.close();
 }
@@ -201,10 +192,10 @@ void _imageProcessingEntryPoint(SendPort sendPort) async {
 
 void _sendYUVToIsolate(
   CameraImage image,
-  SendPort _yuvSendPort,
+  SendPort yuvSendPort,
 ) async {
   final replyPort = ReceivePort();
-  _yuvSendPort.send(_YUVProcessingMessage(image, replyPort.sendPort));
+  yuvSendPort.send(_YUVProcessingMessage(image, replyPort.sendPort));
   final img.Image? convertedImage = await replyPort.first;
   if (convertedImage != null) {
     // Do something with the converted image

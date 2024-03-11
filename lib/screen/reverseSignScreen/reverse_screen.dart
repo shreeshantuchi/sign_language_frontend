@@ -14,7 +14,7 @@ class ReverseScreen extends StatefulWidget {
 class _ReverseScreenState extends State<ReverseScreen> {
   @override
   Widget build(BuildContext context) {
-    TextEditingController _textEditingController = TextEditingController();
+    TextEditingController textEditingController = TextEditingController();
     return Scaffold(
       appBar: AppBar(),
       body: Padding(
@@ -25,9 +25,9 @@ class _ReverseScreenState extends State<ReverseScreen> {
             children: [
               TextField(
                 decoration: const InputDecoration(hintText: "Enter Your Text"),
-                controller: _textEditingController,
+                controller: textEditingController,
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               AppButton(
@@ -35,13 +35,14 @@ class _ReverseScreenState extends State<ReverseScreen> {
                   onPressed: () {
                     context
                         .read<DictionaryAPi>()
-                        .getReverseSignVideo(_textEditingController.text);
+                        .getReverseSignVideo(textEditingController.text);
                   }),
-              SizedBox(
+              const SizedBox(
                 height: 40,
               ),
-              SwitchWidget(),
-              Text(context.watch<DictionaryAPi>().state.toString()),
+              const SwitchWidget(),
+              Text(
+                  context.watch<DictionaryAPi>().reverseScreenState.toString()),
             ],
           ),
         ),
@@ -51,22 +52,23 @@ class _ReverseScreenState extends State<ReverseScreen> {
 }
 
 class SwitchWidget extends StatelessWidget {
-  final String switchCase =
-      'case1'; // Change this value based on your condition
+  final String switchCase = 'case1';
+
+  const SwitchWidget({super.key}); // Change this value based on your condition
 
   @override
   Widget build(BuildContext context) {
     switch (context.watch<DictionaryAPi>().reverseScreenState) {
-      case 1:
-        return SizedBox.shrink();
-      case 2:
-        return CircularProgressIndicator();
-      case 3:
-        return VideoPlayerScreen(
+      case ReverseScreenState.initial:
+        return const SizedBox.shrink();
+      case ReverseScreenState.fetch:
+        return const CircularProgressIndicator();
+      case ReverseScreenState.done:
+        return const VideoPlayerScreen(
             videoUrl: "http://10.0.2.2:8000/media/output/video.mp4");
 
       default:
-        return SizedBox.shrink();
+        return const SizedBox.shrink();
     }
   }
 }

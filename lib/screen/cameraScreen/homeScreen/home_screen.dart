@@ -1,4 +1,4 @@
-// ignore_for_file: depend_on_referenced_packages
+// ignore_for_file: depend_on_referenced_packages, use_build_context_synchronously
 
 import 'dart:io';
 
@@ -41,9 +41,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xffDCF2F1),
+      backgroundColor: const Color(0xffDCF2F1),
       appBar: AppBar(
-        backgroundColor: Color(0xffDCF2F1),
+        backgroundColor: const Color(0xffDCF2F1),
       ),
       body: Center(
         child: Padding(
@@ -64,6 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       if (result != null) {
                         List<File> files =
                             result.paths.map((path) => File(path!)).toList();
+                        // ignore: duplicate_ignore
                         // ignore: use_build_context_synchronously
                         Navigator.push(
                             context,
@@ -105,8 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 AppButton(
                     height: 150,
                     width: 150,
-                    icon: PhosphorIcons.magnifyingGlass(),
-                    text: "Search Video",
+                    text: "Detect\nSign Language",
                     onPressed: () async {
                       final cameras = await availableCameras();
                       final camera = cameras.first;

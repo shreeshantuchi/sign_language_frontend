@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -37,12 +35,12 @@ class AppButton extends StatelessWidget {
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 0, vertical: vPadding),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 icon == null
                     ? const SizedBox.shrink()
                     : Padding(
-                        padding: EdgeInsets.only(bottom: 20),
+                        padding: const EdgeInsets.only(bottom: 20),
                         child: PhosphorIcon(
                           icon!,
                           color: Colors.white,

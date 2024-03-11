@@ -17,7 +17,9 @@ class _UploadScreenState extends State<UploadScreen> {
     return Scaffold(
       body: ListView.builder(
           itemCount: widget.allSelectedFile.length,
-          itemBuilder: (context, index) {}),
+          itemBuilder: (context, index) {
+            return const CircularProgressIndicator();
+          }),
     );
   }
 }
