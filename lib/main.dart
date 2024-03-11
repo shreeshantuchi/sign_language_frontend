@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:sign_language_record_app/Api/dictionary_api.dart';
 import 'package:sign_language_record_app/provider/dropdown_provider.dart';
+import 'package:sign_language_record_app/provider/signDetectState/sign_detect_state_Provider.dart';
 import 'package:sign_language_record_app/screen/cameraScreen/homeScreen/home_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -12,7 +13,8 @@ void main() {
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => DictionaryAPi()),
-      ChangeNotifierProvider(create: (_) => Dropdown())
+      ChangeNotifierProvider(create: (_) => Dropdown()),
+      ChangeNotifierProvider(create: (_) => SignProvider())
     ],
     child: const MyApp(),
   ));
