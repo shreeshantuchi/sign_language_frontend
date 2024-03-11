@@ -22,7 +22,7 @@ class SignLanguageScreen extends StatefulWidget {
 class _SignLanguageScreenState extends State<SignLanguageScreen> {
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
-  late WebSocket _channel;
+  late IOWebSocketChannel _channel;
   late Isolate _imageProcessingIsolate;
   late SendPort _imageProcessingSendPort;
   late ReceivePort _imageProcessingReceivePort;
@@ -38,7 +38,7 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
       ResolutionPreset.low,
     );
     _initializeControllerFuture = _controller.initialize();
-
+    _channel = IOWebSocketChannel.connect("ws://10.0.2.2:8000/ws/stream/");
     // Initialize isolate and communication ports
     _initIsolates();
   }
@@ -46,7 +46,7 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
   @override
   void dispose() {
     _controller.dispose();
-    _channel.close();
+    _channel.sink.close();
     _imageProcessingIsolate.kill(priority: Isolate.immediate);
     _yuvIsolate.kill(priority: Isolate.immediate);
     _imageProcessingReceivePort.close();
@@ -77,7 +77,7 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
   // Send bytes to server
 
   void _startStreaming() async {
-    _channel = await WebSocket.connect("ws://10.0.2.2:8000/ws/stream/");
+    _channel = IOWebSocketChannel.connect("ws://10.0.2.2:8000/ws/stream/")
     print("connected");
     await _initializeControllerFuture;
     _controller.startImageStream((CameraImage image) {
@@ -139,7 +139,7 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
                       return ElevatedButton(
                         onPressed: () async {
                           ref.updateState(StreamState.initial);
-                          await _channel.close();
+                          await _channel.sink.close();
                         },
                         child: Text("Stop Stream"),
                       );
@@ -154,10 +154,10 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
 }
 
 void _sendVideoStream(
-    Uint8List? data, BuildContext context, WebSocket _channel) {
+    Uint8List? data, BuildContext context, IOWebSocketChannel _channel) {
   if (data != null && context.read<SignProvider>().state == StreamState.start) {
     String new_data = base64Encode(data);
-    _channel.add(new_data);
+    _channel.sink.add(new_data);
     // context.read<IProvider>().updateImage(data);
   }
 }
@@ -166,7 +166,7 @@ void _sendCameraImageToIsolate(
     CameraImage image,
     SendPort _imageProcessingSendPort,
     BuildContext context,
-    WebSocket _channel) async {
+    IOWebSocketChannel _channel) async {
   final replyPort = ReceivePort();
   _imageProcessingSendPort
       .send(_ImageProcessingMessage(image, replyPort.sendPort));
