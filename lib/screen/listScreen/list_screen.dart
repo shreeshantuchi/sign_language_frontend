@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:sign_language_record_app/Api/dictionary_api.dart';
 import 'package:provider/provider.dart';
+import 'package:sign_language_record_app/modle/dictionary_modle.dart';
 import 'package:sign_language_record_app/widget/app_button.dart';
 
 class ListScreen extends StatefulWidget {
@@ -15,6 +16,14 @@ class ListScreen extends StatefulWidget {
 }
 
 class _ListScreenState extends State<ListScreen> {
+  Future? _future;
+  @override
+  void initState() {
+    _future = context.read<DictionaryAPi>().getDectionary();
+    // TODO: implement initState
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -25,19 +34,28 @@ class _ListScreenState extends State<ListScreen> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
+                  TextField(
+                      onChanged: (value) =>
+                          context.read<DictionaryAPi>().filterSearch(value)),
                   FutureBuilder(
-                      future: context.read<DictionaryAPi>().getDectionary(),
+                      future: _future,
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
                           return ListView.builder(
-                            itemCount: snapshot.data!.length,
+                            itemCount: context
+                                .watch<DictionaryAPi>()
+                                .filteredDictionary
+                                .length,
                             itemBuilder: (context, index) {
                               return Padding(
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 10),
                                 child: AppButton(
                                     vPadding: 20,
-                                    text: snapshot.data![index].name,
+                                    text: context
+                                        .watch<DictionaryAPi>()
+                                        .filteredDictionary[index]
+                                        .name,
                                     onPressed: () async {
                                       context.read<DictionaryAPi>().uploadVideo(
                                           widget.fileList[0],
@@ -58,7 +76,11 @@ class _ListScreenState extends State<ListScreen> {
           ),
         ),
         SwitchWidget(),
-        Text(context.watch<DictionaryAPi>().state.toString()),
+        Text(context
+            .watch<DictionaryAPi>()
+            .filteredDictionary
+            .length
+            .toString()),
       ],
     );
   }

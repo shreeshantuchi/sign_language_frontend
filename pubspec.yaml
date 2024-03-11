@@ -50,6 +50,8 @@ dev_dependencies:
   video_player: ^2.8.1
   ffmpeg_kit_flutter_min: ^5.1.0
   http: ^1.1.2
+  searchfield: ^0.9.0
+  phosphor_flutter: ^2.0.1
 
 
   # The "flutter_lints" package below contains a set of recommended lints to

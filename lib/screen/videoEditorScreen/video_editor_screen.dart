@@ -4,17 +4,23 @@ import 'dart:io';
 
 import 'package:gal/gal.dart';
 import 'package:flutter/material.dart';
+import 'package:sign_language_record_app/Api/dictionary_api.dart';
+import 'package:searchfield/searchfield.dart';
+import 'package:sign_language_record_app/modle/dictionary_modle.dart';
+import 'package:sign_language_record_app/provider/dropdown_provider.dart';
 
 import 'package:sign_language_record_app/screen/videoEditorScreen/crop_screen.dart';
 import 'package:sign_language_record_app/screen/videoEditorScreen/export_result.dart';
 import 'package:sign_language_record_app/utilis/ExportServices/export_services.dart';
 import 'package:sign_language_record_app/widget/app_button.dart';
 import 'package:video_editor/video_editor.dart';
+import 'package:provider/provider.dart';
 
 //-------------------//
 //VIDEO EDITOR SCREEN//
 //-------------------//
 final navigatorKey = GlobalKey<NavigatorState>();
+TextEditingController textEditingController = TextEditingController();
 
 class VideoEditor extends StatefulWidget {
   VideoEditor({super.key, required this.file});
@@ -29,6 +35,8 @@ class _VideoEditorState extends State<VideoEditor> {
   final _exportingProgress = ValueNotifier<double>(0.0);
   final _isExporting = ValueNotifier<bool>(false);
   final double height = 60;
+
+  Future? _future;
 
   late final VideoEditorController _controller = VideoEditorController.file(
     widget.file,
@@ -65,6 +73,7 @@ class _VideoEditorState extends State<VideoEditor> {
 
   @override
   void initState() {
+    _future = context.read<DictionaryAPi>().getDectionary();
     super.initState();
     _controller
         .initialize(aspectRatio: 9 / 16)
@@ -93,7 +102,6 @@ class _VideoEditorState extends State<VideoEditor> {
       );
 
   void _exportVideo() async {
-    TextEditingController textEditingController = TextEditingController();
     _exportingProgress.value = 0;
     _isExporting.value = true;
 
@@ -108,47 +116,54 @@ class _VideoEditorState extends State<VideoEditor> {
       // },
     );
 
-    await ExportService.runFFmpegCommand(
-      await config.getExecuteConfig(),
-      onProgress: (stats) {
-        _exportingProgress.value = config.getFFmpegProgress(stats.getTime());
-      },
-      onError: (e, s) => _showErrorSnackBar("Error on export video :("),
-      onCompleted: (file) {
-        _isExporting.value = false;
-        if (!mounted) return;
-        showDialog(
+    await ExportService.runFFmpegCommand(await config.getExecuteConfig(),
+        onProgress: (stats) {
+          _exportingProgress.value = config.getFFmpegProgress(stats.getTime());
+        },
+        onError: (e, s) => _showErrorSnackBar("Error on export video :("),
+        onCompleted: (file) {
+          _isExporting.value = false;
+          if (!mounted) return;
+          showDialog(
             context: context,
             builder: (context) {
               return AlertDialog(
-                title: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text("Enter the Title"),
-                      TextFormField(
-                        controller: textEditingController,
-                      ),
-                    ]),
-                actions: [
-                  AppButton(
-                      text: "Save",
-                      onPressed: () {
-                        String newFile = renameVideoFile(
-                            file.path, textEditingController.text);
-                        Navigator.pop(context);
-                        showDialog(
-                            context: context,
-                            builder: (_) {
-                              _saveVideoToGallery(newFile);
+                  actions: [
+                    AppButton(
+                        text: "Save",
+                        onPressed: () {
+                          String newFile = renameVideoFile(
+                              file.path, textEditingController.text);
+                          Navigator.pop(context);
+                          showDialog(
+                              context: context,
+                              builder: (_) {
+                                _saveVideoToGallery(newFile);
 
-                              return SizedBox.shrink();
-                            });
-                      })
-                ],
-              );
-            });
-      },
-    );
+                                return SizedBox.shrink();
+                              });
+                        })
+                  ],
+                  title: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text("Enter the Title"),
+                        SizedBox(
+                          height: 40,
+                        ),
+                        FutureBuilder(
+                            future: _future,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                return SearchFieldSample();
+                              } else {
+                                return CircularProgressIndicator();
+                              }
+                            }),
+                      ]));
+            },
+          );
+        });
   }
 
   void _exportCover() async {
@@ -473,6 +488,105 @@ class _VideoEditorState extends State<VideoEditor> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class SearchFieldSample extends StatefulWidget {
+  const SearchFieldSample({Key? key}) : super(key: key);
+
+  @override
+  State<SearchFieldSample> createState() => _SearchFieldSampleState();
+}
+
+class _SearchFieldSampleState extends State<SearchFieldSample> {
+  int suggestionsCount = 12;
+  final focus = FocusNode();
+
+  @override
+  void initState() {
+    suggestions =
+        List.generate(suggestionsCount, (index) => 'suggestion $index');
+    super.initState();
+  }
+
+  var suggestions = <String>[];
+  @override
+  Widget build(BuildContext context) {
+    Widget searchChild(x) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 12),
+          child: Text(x, style: TextStyle(fontSize: 24, color: Colors.black)),
+        );
+    return SearchField(
+      onSearchTextChanged: (query) {
+        context.read<DictionaryAPi>().filterSearch(query);
+        return context
+            .read<DictionaryAPi>()
+            .filteredDictionary
+            .map((e) =>
+                SearchFieldListItem<String>(e.name, child: searchChild(e.name)))
+            .toList();
+      },
+      onTap: () {},
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      validator: (value) {
+        if (value == null || value.length < 4) {
+          return 'error';
+        }
+        return null;
+      },
+      key: const Key('searchfield'),
+      hint: 'Search Title',
+      controller: textEditingController,
+      itemHeight: 50,
+      scrollbarDecoration: ScrollbarDecoration(),
+      //   thumbVisibility: true,
+      //   thumbColor: Colors.red,
+      //   fadeDuration: const Duration(milliseconds: 3000),
+      //   trackColor: Colors.blue,
+      //   trackRadius: const Radius.circular(10),
+      // ),
+      onTapOutside: (x) {},
+      suggestionStyle: const TextStyle(fontSize: 24, color: Colors.black),
+      searchInputDecoration: InputDecoration(
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(24),
+          borderSide: const BorderSide(
+            width: 1,
+            color: Colors.orange,
+            style: BorderStyle.solid,
+          ),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(24),
+          borderSide: const BorderSide(
+            width: 1,
+            color: Colors.black,
+            style: BorderStyle.solid,
+          ),
+        ),
+        fillColor: Colors.white,
+        filled: true,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20,
+        ),
+      ),
+      suggestionsDecoration: SuggestionDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.orange),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      suggestions: context
+          .read<DictionaryAPi>()
+          .filteredDictionary
+          .map((e) =>
+              SearchFieldListItem<String>(e.name, child: searchChild(e.name)))
+          .toList(),
+      focusNode: focus,
+      suggestionState: Suggestion.expand,
+      onSuggestionTap: (SearchFieldListItem<String> x) {
+        focus.unfocus();
+      },
     );
   }
 }

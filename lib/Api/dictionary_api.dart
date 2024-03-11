@@ -7,8 +7,11 @@ import 'package:sign_language_record_app/modle/dictionary_modle.dart';
 
 class DictionaryAPi with ChangeNotifier {
   int state = 1;
+  int reverseScreenState = 1;
+  List<DisctionaryModle> filteredDictionary = [];
+  List<DisctionaryModle> dictionary = [];
   Future<List<DisctionaryModle>> getDectionary() async {
-    List<DisctionaryModle> dictionary = [];
+    dictionary = [];
     final response =
         await http.get(Uri.parse('http://10.0.2.2:8000/dictionary/list'));
     print("object2");
@@ -22,12 +25,26 @@ class DictionaryAPi with ChangeNotifier {
           DisctionaryModle(name: element["name"], id: element["id"]),
         );
       });
+      filteredDictionary = dictionary;
       return dictionary;
     } else {
       // If the server did not return a 200 OK response,
       // throw an exception.
       throw Exception('Failed to load data');
     }
+  }
+
+  void filterSearch(String text) {
+    if (text.isEmpty) {
+      filteredDictionary = dictionary;
+    } else {
+      filteredDictionary = dictionary
+          .where((element) =>
+              element.name.toLowerCase().contains(text.toLowerCase()))
+          .toList();
+      print(filteredDictionary);
+    }
+    notifyListeners();
   }
 
   Future<void> uploadVideo(File file, String id) async {
@@ -63,6 +80,26 @@ class DictionaryAPi with ChangeNotifier {
 
     // Check if the extension is in the list of video extensions
     return videoExtensions.contains(extension);
+  }
+
+  void getReverseSignVideo(String text) async {
+    reverseScreenState = 2;
+    notifyListeners();
+    final response =
+        await http.get(Uri.parse('http://10.0.2.2:8000/search/${text}'));
+    print("object2");
+
+    if (response.statusCode == 200) {
+      reverseScreenState = 3;
+      print(reverseScreenState.toString());
+      notifyListeners();
+      // If the server returns a 200 OK response, parse the JSON
+    } else {
+      // If the server did not return a 200 OK response,
+      // throw an exception.
+      throw Exception('Failed to load data');
+    }
+    notifyListeners();
   }
 
   @override

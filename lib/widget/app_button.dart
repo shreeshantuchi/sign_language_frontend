@@ -1,22 +1,27 @@
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 // ignore: must_be_immutable
 class AppButton extends StatelessWidget {
   AppButton(
       {super.key,
       required this.text,
-      this.color = Colors.amber,
+      this.color = const Color(0xff365486),
       this.textColor = Colors.white,
       this.width = 200.0,
+      this.height = 50,
       this.vPadding = 10,
+      this.icon,
       required this.onPressed});
   final String text;
   Color? color;
   Color? textColor;
   double vPadding;
   double width;
+  double height;
+  IconData? icon;
   final VoidCallback onPressed;
 
   @override
@@ -25,14 +30,30 @@ class AppButton extends StatelessWidget {
       onTap: onPressed,
       child: Container(
         width: width,
+        height: height,
         decoration: BoxDecoration(
             color: color, borderRadius: BorderRadius.circular(12)),
         child: Center(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 0, vertical: vPadding),
-            child: Text(
-              text,
-              style: TextStyle(fontSize: 16, color: textColor),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                icon == null
+                    ? const SizedBox.shrink()
+                    : Padding(
+                        padding: EdgeInsets.only(bottom: 20),
+                        child: PhosphorIcon(
+                          icon!,
+                          color: Colors.white,
+                          size: 70,
+                        ),
+                      ),
+                Text(
+                  text,
+                  style: TextStyle(fontSize: 16, color: textColor),
+                ),
+              ],
             ),
           ),
         ),
