@@ -77,7 +77,7 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
   // Send bytes to server
 
   void _startStreaming() async {
-    _channel = IOWebSocketChannel.connect("ws://10.0.2.2:8000/ws/stream/")
+    _channel = IOWebSocketChannel.connect("ws://10.0.2.2:8000/ws/stream/");
     print("connected");
     await _initializeControllerFuture;
     _controller.startImageStream((CameraImage image) {
@@ -139,7 +139,7 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
                       return ElevatedButton(
                         onPressed: () async {
                           ref.updateState(StreamState.initial);
-                          await _channel.sink.close();
+                          await _controller.stopImageStream();
                         },
                         child: Text("Stop Stream"),
                       );

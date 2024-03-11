@@ -10,6 +10,8 @@ import 'package:sign_language_record_app/screen/cameraScreen/homeScreen/home_scr
 import 'package:provider/provider.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => DictionaryAPi()),
