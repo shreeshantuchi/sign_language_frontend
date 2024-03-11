@@ -77,7 +77,7 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
   // Send bytes to server
 
   void _startStreaming() async {
-    _channel = IOWebSocketChannel.connect("ws://10.0.2.2:8000/ws/stream/");
+    // _channel = IOWebSocketChannel.connect("ws://10.0.2.2:8000/ws/stream/");
     print("connected");
     await _initializeControllerFuture;
     _controller.startImageStream((CameraImage image) {
@@ -146,6 +146,15 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
                     }
                   })
                 : CircularProgressIndicator(),
+            StreamBuilder(
+                stream: _channel.stream,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Text(snapshot.data.toString());
+                  } else {
+                    return CircularProgressIndicator();
+                  }
+                })
           ],
         ),
       ),
