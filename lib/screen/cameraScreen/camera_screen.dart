@@ -10,6 +10,7 @@ class CameraScreen extends StatefulWidget {
   const CameraScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _CameraScreenState createState() => _CameraScreenState();
 }
 
@@ -44,13 +45,12 @@ class _CameraScreenState extends State<CameraScreen> {
   }
 
   Future<void> _onRecordButtonPressed() async {
-    print("object");
+
     if (_isRecording) {
       setState(() {
         _isRecording = !_isRecording;
       });
       final video = await _controller!.stopVideoRecording();
-      print(video.path);
       saveVideoToCustomFolder(video.path, "hello", 2.toString());
     } else {
       await _startVideoRecording();
@@ -58,7 +58,7 @@ class _CameraScreenState extends State<CameraScreen> {
   }
 
   Future<void> _startVideoRecording() async {
-    ;
+    
 
     try {
       await _controller!.startVideoRecording();
@@ -66,7 +66,7 @@ class _CameraScreenState extends State<CameraScreen> {
         _isRecording = !_isRecording;
       });
     } catch (e) {
-      print(e);
+     // print(e);
     }
   }
 
@@ -103,7 +103,6 @@ class _CameraScreenState extends State<CameraScreen> {
                         ),
                         onPressed: () {
                           _onRecordButtonPressed();
-                          print(_isRecording);
                         },
                       ),
                     ),
@@ -121,7 +120,6 @@ class _CameraScreenState extends State<CameraScreen> {
       String videoPath, String customFolder, String customName) async {
     // Get the app's document directory
     List<Directory>? appDocDir = await getExternalStorageDirectories();
-    print(appDocDir);
 
     // Create a custom directory inside the app's document directory
     String customDirPath = '${appDocDir![0].path}/$customFolder';
@@ -132,9 +130,8 @@ class _CameraScreenState extends State<CameraScreen> {
 
     // Copy the video to the custom directory with the custom name
     String customFilePath = '$customDirPath/$customName.mp4';
-    File customFile = File(customFilePath);
+
     await File(videoPath).copy(customFilePath);
 
-    print('Video saved to: $customFilePath');
   }
 }

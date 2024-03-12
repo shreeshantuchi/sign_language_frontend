@@ -9,7 +9,7 @@ class Counter {
 
   void counterIncrement() {
     count++;
-    print(count);
+
     counterController.add(count);
   }
 

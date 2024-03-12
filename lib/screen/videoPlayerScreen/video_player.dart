@@ -4,9 +4,10 @@ import 'package:video_player/video_player.dart';
 class VideoPlayerScreen extends StatefulWidget {
   final String videoUrl;
 
-  const VideoPlayerScreen({required this.videoUrl, Key? key}) : super(key: key);
+  const VideoPlayerScreen({required this.videoUrl, super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _VideoPlayerScreenState createState() => _VideoPlayerScreenState();
 }
 
@@ -35,17 +36,17 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                 child: VideoPlayer(_controller),
               );
             } else {
-              return Center(
+              return const Center(
                 child: CircularProgressIndicator(),
               );
             }
           },
         ),
-        SizedBox(
+        const SizedBox(
           height: 20,
         ),
         FloatingActionButton(
-          backgroundColor: Color(0xffDCF2F1),
+          backgroundColor: const Color(0xffDCF2F1),
           onPressed: () {
             setState(() {
               if (_controller.value.isPlaying) {

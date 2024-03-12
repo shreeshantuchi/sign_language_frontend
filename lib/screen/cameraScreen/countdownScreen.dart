@@ -1,3 +1,6 @@
+
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 import 'package:sign_language_record_app/utilis/countdownTimer/countdown_timer.dart';
 
@@ -14,13 +17,11 @@ class _CountDownScreenState extends State<CountDownScreen> {
   void initState() {
     counter.startTimer();
 
-    // TODO: implement initState
     super.initState();
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
   }
 
@@ -40,8 +41,9 @@ class _CountDownScreenState extends State<CountDownScreen> {
                   )),
                 )
               : const SizedBox.shrink();
-        } else
+        } else {
           return const SizedBox.shrink();
+        }
       },
     );
   }

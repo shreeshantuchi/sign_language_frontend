@@ -6,8 +6,7 @@ import 'package:gal/gal.dart';
 import 'package:flutter/material.dart';
 import 'package:sign_language_record_app/Api/dictionary_api.dart';
 import 'package:searchfield/searchfield.dart';
-import 'package:sign_language_record_app/modle/dictionary_modle.dart';
-import 'package:sign_language_record_app/provider/dropdown_provider.dart';
+
 
 import 'package:sign_language_record_app/screen/videoEditorScreen/crop_screen.dart';
 import 'package:sign_language_record_app/screen/videoEditorScreen/export_result.dart';
@@ -23,7 +22,7 @@ final navigatorKey = GlobalKey<NavigatorState>();
 TextEditingController textEditingController = TextEditingController();
 
 class VideoEditor extends StatefulWidget {
-  VideoEditor({super.key, required this.file});
+  const VideoEditor({super.key, required this.file});
 
   final File file;
 
@@ -48,7 +47,6 @@ class _VideoEditorState extends State<VideoEditor> {
     await Gal.putVideo(videoFilePath);
     showSnackbar();
 
-    print("here printed");
 
     // if (result != null) {
     //   if (result) {
@@ -141,24 +139,24 @@ class _VideoEditorState extends State<VideoEditor> {
                               builder: (_) {
                                 _saveVideoToGallery(newFile);
 
-                                return SizedBox.shrink();
+                                return const SizedBox.shrink();
                               });
                         })
                   ],
                   title: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text("Enter the Title"),
-                        SizedBox(
+                        const Text("Enter the Title"),
+                        const SizedBox(
                           height: 40,
                         ),
                         FutureBuilder(
                             future: _future,
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {
-                                return SearchFieldSample();
+                                return const SearchFieldSample();
                               } else {
-                                return CircularProgressIndicator();
+                                return const CircularProgressIndicator();
                               }
                             }),
                       ]));
@@ -198,21 +196,20 @@ class _VideoEditorState extends State<VideoEditor> {
       String directory = oldFile.parent.path;
 
       // Create a File object for the new file with the updated name
-      File newFile = File('$directory/${newFileName}.mp4');
+      File newFile = File('$directory/$newFileName.mp4');
 
       // Rename the file
       oldFile.renameSync(newFile.path);
 
-      print('File renamed successfully.');
       return newFile.path;
     } catch (e) {
-      print('Error renaming file: $e');
       return "Error";
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // ignore: deprecated_member_use
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
@@ -274,12 +271,12 @@ class _VideoEditorState extends State<VideoEditor> {
                                   margin: const EdgeInsets.only(top: 10),
                                   child: Column(
                                     children: [
-                                      TabBar(
+                                      const TabBar(
                                         tabs: [
                                           Row(
                                               mainAxisAlignment:
                                                   MainAxisAlignment.center,
-                                              children: const [
+                                              children: [
                                                 Padding(
                                                     padding: EdgeInsets.all(5),
                                                     child: Icon(
@@ -289,7 +286,7 @@ class _VideoEditorState extends State<VideoEditor> {
                                           Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
-                                            children: const [
+                                            children: [
                                               Padding(
                                                   padding: EdgeInsets.all(5),
                                                   child:
@@ -494,7 +491,7 @@ class _VideoEditorState extends State<VideoEditor> {
 }
 
 class SearchFieldSample extends StatefulWidget {
-  const SearchFieldSample({Key? key}) : super(key: key);
+  const SearchFieldSample({super.key});
 
   @override
   State<SearchFieldSample> createState() => _SearchFieldSampleState();
@@ -516,7 +513,7 @@ class _SearchFieldSampleState extends State<SearchFieldSample> {
   Widget build(BuildContext context) {
     Widget searchChild(x) => Padding(
           padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 12),
-          child: Text(x, style: TextStyle(fontSize: 24, color: Colors.black)),
+          child: Text(x, style: const TextStyle(fontSize: 24, color: Colors.black)),
         );
     return SearchField(
       onSearchTextChanged: (query) {
