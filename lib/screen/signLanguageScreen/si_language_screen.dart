@@ -165,7 +165,14 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
                   } else {
                     return const CircularProgressIndicator();
                   }
-                })
+                }),
+            Consumer<SignProvider>(builder: (context, ref, child) {
+              if (ref.iamge != null) {
+                return Image.memory(ref.iamge!);
+              } else {
+                return CircularProgressIndicator();
+              }
+            }),
           ],
         ),
       ),
@@ -177,7 +184,7 @@ void _sendVideoStream(
     Uint8List? data, BuildContext context, IOWebSocketChannel channel) {
   if (data != null && context.read<SignProvider>().state == StreamState.start) {
     String newData = base64Encode(data);
-    channel.sink.add(newData);
+    // channel.sink.add(newData);
     // context.read<IProvider>().updateImage(data);
   }
 }
@@ -191,6 +198,7 @@ void _sendCameraImageToIsolate(
   imageProcessingSendPort
       .send(_ImageProcessingMessage(image, replyPort.sendPort));
   final Uint8List? bytes = await replyPort.first;
+  context.read<SignProvider>().updateImage(bytes);
   if (bytes != null) {
     _sendVideoStream(Uint8List.fromList(bytes), context, channel);
   }
