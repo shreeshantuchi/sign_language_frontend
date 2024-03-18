@@ -34,11 +34,16 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
   @override
   void initState() {
     super.initState();
+    _initializeCameraController();
+  }
+
+  Future<void> _initializeCameraController() async {
     _controller = CameraController(
       widget.camera!,
       ResolutionPreset.low,
     );
     _initializeControllerFuture = _controller.initialize();
+
     _channel = IOWebSocketChannel.connect("ws://10.0.2.2:8000/ws/stream/");
     // Initialize isolate and communication ports
     _initIsolates();
@@ -78,21 +83,24 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
   // Send bytes to server
 
   Future<void> _startStreaming() async {
-    await _initializeControllerFuture;
-    // Check if the widget is still mounted before starting the image stream
-    if (!mounted) return;
-    _controller.startImageStream((CameraImage image) {
-      // Check if the widget is still mounted before processing the image
+    if (!_controller.value.isInitialized) {
+      return;
+    }
+    await _controller.startImageStream((CameraImage image) {
       if (!mounted) {
-        _controller
-            .stopImageStream(); // Stop the image stream if the widget is unmounted
         return;
       }
-
       _sendCameraImageToIsolate(
           image, _imageProcessingSendPort, context, _channel);
       _sendYUVToIsolate(image, _yuvSendPort);
     });
+  }
+
+  Future<void> _stopStreaming() async {
+    if (!_controller.value.isStreamingImages) {
+      return;
+    }
+    await _controller.stopImageStream();
   }
 
   @override
@@ -146,7 +154,7 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
                     } else {
                       return ElevatedButton(
                         onPressed: () async {
-                          await _controller.stopImageStream();
+                          await _stopStreaming();
                           ref.updateState(StreamState.initial);
                         },
                         child: const Text("Stop Stream"),
@@ -198,8 +206,10 @@ void _sendCameraImageToIsolate(
   imageProcessingSendPort
       .send(_ImageProcessingMessage(image, replyPort.sendPort));
   final Uint8List? bytes = await replyPort.first;
-  context.read<SignProvider>().updateImage(bytes);
-  if (bytes != null) {
+
+  if (bytes != null &&
+      context.read<SignProvider>().state == StreamState.start) {
+    context.read<SignProvider>().updateImage(bytes);
     _sendVideoStream(Uint8List.fromList(bytes), context, channel);
   }
   replyPort.close();
