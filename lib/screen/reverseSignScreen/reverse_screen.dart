@@ -64,8 +64,18 @@ class SwitchWidget extends StatelessWidget {
       case ReverseScreenState.fetch:
         return const CircularProgressIndicator();
       case ReverseScreenState.done:
-        return const VideoPlayerScreen(
-            videoUrl: "http://10.0.2.2:8000/media/output/video.mp4");
+        return const Column(
+          children: [
+            VideoPlayerScreen(
+                videoUrl:
+                    "http://10.0.2.2:8000/media/output/processed_video.mp4"),
+            SizedBox(
+              height: 20,
+            ),
+             VideoPlayerScreen(
+                videoUrl: "http://10.0.2.2:8000/media/output/video.mp4"),
+          ],
+        );
 
       default:
         return const SizedBox.shrink();

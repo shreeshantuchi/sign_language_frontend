@@ -77,10 +77,18 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
 
   // Send bytes to server
 
-  void _startStreaming() async {
-    _channel = IOWebSocketChannel.connect("ws://10.0.2.2:8000/ws/stream/");
+  Future<void> _startStreaming() async {
     await _initializeControllerFuture;
+    // Check if the widget is still mounted before starting the image stream
+    if (!mounted) return;
     _controller.startImageStream((CameraImage image) {
+      // Check if the widget is still mounted before processing the image
+      if (!mounted) {
+        _controller
+            .stopImageStream(); // Stop the image stream if the widget is unmounted
+        return;
+      }
+
       _sendCameraImageToIsolate(
           image, _imageProcessingSendPort, context, _channel);
       _sendYUVToIsolate(image, _yuvSendPort);
@@ -129,23 +137,35 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
                 ? Consumer<SignProvider>(builder: (context, ref, child) {
                     if (ref.state == StreamState.initial) {
                       return ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
+                          await _startStreaming();
                           ref.updateState(StreamState.start);
-                          _startStreaming();
                         },
                         child: const Text("Start Stream"),
                       );
                     } else {
                       return ElevatedButton(
                         onPressed: () async {
-                          ref.updateState(StreamState.initial);
                           await _controller.stopImageStream();
+                          ref.updateState(StreamState.initial);
                         },
                         child: const Text("Stop Stream"),
                       );
                     }
                   })
                 : const CircularProgressIndicator(),
+            StreamBuilder(
+                stream: _channel.stream,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Text(
+                      snapshot.data.toString(),
+                      style: const TextStyle(fontSize: 24),
+                    );
+                  } else {
+                    return const CircularProgressIndicator();
+                  }
+                })
           ],
         ),
       ),
