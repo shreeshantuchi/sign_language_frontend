@@ -98,10 +98,9 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
   }
 
   Future<void> _stopStreaming() async {
-    if (!_controller.value.isStreamingImages) {
-      return;
+    if (_controller.value.isStreamingImages) {
+      await _controller.stopImageStream();
     }
-    await _controller.stopImageStream();
   }
 
   @override
@@ -158,6 +157,7 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
                     if (ref.state == StreamState.initial) {
                       return ElevatedButton(
                         onPressed: () async {
+                          await _stopStreaming();
                           await _startStreaming();
                           ref.updateState(StreamState.start);
                         },
