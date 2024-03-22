@@ -22,7 +22,7 @@ class SignLanguageScreen extends StatefulWidget {
 
 class _SignLanguageScreenState extends State<SignLanguageScreen> {
   late CameraController _controller;
-  late Future<void> _initializeControllerFuture;
+
   late IOWebSocketChannel _channel;
   late Isolate _imageProcessingIsolate;
   late SendPort _imageProcessingSendPort;
@@ -42,7 +42,6 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
       widget.camera!,
       ResolutionPreset.low,
     );
-    _initializeControllerFuture = _controller.initialize();
 
     _channel = IOWebSocketChannel.connect("ws://10.0.2.2:8000/ws/stream/");
     // Initialize isolate and communication ports
@@ -50,14 +49,14 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
   }
 
   @override
-  void dispose() {
-    _controller.dispose();
-    _channel.sink.close();
+  void dispose() async {
+    super.dispose();
+    await _channel.sink.close();
     _imageProcessingIsolate.kill(priority: Isolate.immediate);
     _yuvIsolate.kill(priority: Isolate.immediate);
     _imageProcessingReceivePort.close();
     _yuvReceivePort.close();
-    super.dispose();
+    await _controller.dispose();
   }
 
   // Initialize the image processing isolate and communication ports
@@ -77,6 +76,8 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
     _imageProcessingSendPort = await _imageProcessingReceivePort.first;
     _yuvSendPort = await _yuvReceivePort.first;
     context.read<SignProvider>().updateState(StreamState.initial);
+    await _controller.initialize();
+    context.read<SignProvider>().updateCameraState(CameraControllerState.start);
   }
   // Send camera image to image processing isolate for conversion
 
@@ -126,19 +127,30 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
             //     return Text("this is video");
             //   }
             // }),
-            FutureBuilder<void>(
-              future: _initializeControllerFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  return RotatedBox(
-                    quarterTurns: -1,
-                    child: CameraPreview(_controller),
-                  );
-                } else {
-                  return const Center(child: CircularProgressIndicator());
-                }
-              },
-            ),
+            // FutureBuilder<void>(
+            //   future: _initializeControllerFuture,
+            //   builder: (context, snapshot) {
+            //     if (snapshot.connectionState == ConnectionState.done) {
+            //       return RotatedBox(
+            //         quarterTurns: -1,
+            //         child: CameraPreview(_controller),
+            //       );
+            //     } else {
+            //       return const Center(child: CircularProgressIndicator());
+            //     }
+            //   },
+            // ),
+            Consumer<SignProvider>(builder: (context, ref, child) {
+              if (ref.cameraState == CameraControllerState.start) {
+                return RotatedBox(
+                  quarterTurns: -1,
+                  child: CameraPreview(_controller),
+                );
+              } else {
+                return const Center(child: CircularProgressIndicator());
+                //
+              }
+            }),
 
             context.watch<SignProvider>().state == StreamState.initial ||
                     context.watch<SignProvider>().state == StreamState.start
