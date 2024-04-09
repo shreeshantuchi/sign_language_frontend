@@ -81,6 +81,9 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
     context.read<SignProvider>().updateState(StreamState.start);
     _startStreaming();
     await Future.delayed(const Duration(seconds: 3));
+    await _stopStreaming();
+    _startStreaming();
+    await Future.delayed(const Duration(seconds: 3));
     _stopStreaming();
     context.read<SignProvider>().updateState(StreamState.initial);
     context.read<SignProvider>().updateCameraState(CameraControllerState.start);
@@ -153,27 +156,9 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
             children: [
               Consumer<SignProvider>(builder: (context, ref, child) {
                 if (ref.cameraState == CameraControllerState.start) {
-                  final size = MediaQuery.of(context).size.width;
-
                   return RotatedBox(
                     quarterTurns: 3,
-                    child: Transform.scale(
-                      scale: 1,
-                      child: AspectRatio(
-                        aspectRatio: _controller.value.aspectRatio,
-                        child: OverflowBox(
-                          alignment: Alignment.center,
-                          child: FittedBox(
-                            fit: BoxFit.fill,
-                            child: Container(
-                              color: Colors.red,
-                              height: 600,
-                              child: CameraPreview(_controller),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                    child: CameraPreview(_controller),
                   );
                 } else {
                   return Container(
