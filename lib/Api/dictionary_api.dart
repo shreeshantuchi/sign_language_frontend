@@ -15,12 +15,12 @@ class DictionaryAPi with ChangeNotifier {
   DictionaryState dictionaryState = DictionaryState.initial;
   ReverseScreenState reverseScreenState = ReverseScreenState.initial;
   UploadVideoState uploadVideoState = UploadVideoState.initial;
-  List<DisctionaryModle> filteredDictionary = [];
-  List<DisctionaryModle> dictionary = [];
-  Future<List<DisctionaryModle>> getDectionary() async {
+  List<DisctionaryModel> filteredDictionary = [];
+  List<DisctionaryModel> dictionary = [];
+  Future<List<DisctionaryModel>> getDectionary() async {
     dictionary = [];
     final response =
-        await http.get(Uri.parse('http://10.0.2.2:8000/dictionary/list'));
+        await http.get(Uri.parse('http://10.0.2.2:8000/dictionary/video'));
     //print("object2");
 
     if (response.statusCode == 200) {
@@ -29,10 +29,10 @@ class DictionaryAPi with ChangeNotifier {
       // print(data);
       for (var element in data) {
         dictionary.add(
-          DisctionaryModle(
+          DisctionaryModel(
               name: element["name"],
               id: element["id"],
-              videoUrl: element["videoUrl"]),
+              videoUrl: element["best_video_link"]),
         );
       }
       filteredDictionary = dictionary;

@@ -288,7 +288,7 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
 void _sendVideoStream(
     Uint8List? data, StreamState? state, IOWebSocketChannel channel) {
   print("data :" + data.toString());
-  if (data != null && state == StreamState.start && channel.closeCode != null) {
+  if (data != null && state == StreamState.start ) {
     String newData = base64Encode(data);
     channel.sink.add(newData);
 
