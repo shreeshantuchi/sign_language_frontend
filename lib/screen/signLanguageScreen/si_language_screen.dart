@@ -80,7 +80,7 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
     await _controller.initialize();
     context.read<SignProvider>().updateState(StreamState.start);
     _startStreaming();
-    await Future.delayed(Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 3));
     _stopStreaming();
     context.read<SignProvider>().updateState(StreamState.initial);
     context.read<SignProvider>().updateCameraState(CameraControllerState.start);
@@ -130,97 +130,121 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Live Video Streaming')),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(80),
+        child: AppBar(
+          centerTitle: true,
+          iconTheme: const IconThemeData(color: Colors.white),
+          backgroundColor: Colors.pinkAccent,
+          titleTextStyle: const TextStyle(
+              color: Colors.white, fontSize: 24, fontWeight: FontWeight.w700),
+          title: const Text('Sign -> Text'),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(
+              bottom: Radius.circular(20), // Adjust the radius as needed
+            ),
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Consumer<IProvider>(builder: (context, ref, child) {
-            //   if (ref.image != null) {
-            //     return Column(
-            //       children: [
-            //         Text(ref.count.toString()),
-            //         Image.memory(
-            //           ref.image!,
-            //           height: 300,
-            //           width: 300,
-            //         ),
-            //       ],
-            //     );
-            //   } else {
-            //     return Text("this is video");
-            //   }
-            // }),
-            // FutureBuilder<void>(
-            //   future: _initializeControllerFuture,
-            //   builder: (context, snapshot) {
-            //     if (snapshot.connectionState == ConnectionState.done) {
-            //       return RotatedBox(
-            //         quarterTurns: -1,
-            //         child: CameraPreview(_controller),
-            //       );
-            //     } else {
-            //       return const Center(child: CircularProgressIndicator());
-            //     }
-            //   },
-            // ),
-            Consumer<SignProvider>(builder: (context, ref, child) {
-              if (ref.cameraState == CameraControllerState.start) {
-                //resetstream();
-                print("one");
-                return RotatedBox(
-                  quarterTurns: -1,
-                  child: CameraPreview(_controller),
-                );
-              } else {
-                return const Center(child: CircularProgressIndicator());
-                //
-              }
-            }),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            children: [
+              Consumer<SignProvider>(builder: (context, ref, child) {
+                if (ref.cameraState == CameraControllerState.start) {
+                  final size = MediaQuery.of(context).size.width;
 
-            context.watch<SignProvider>().state == StreamState.initial ||
-                    context.watch<SignProvider>().state == StreamState.start
-                ? Consumer<SignProvider>(builder: (context, ref, child) {
-                    if (ref.state == StreamState.initial) {
-                      return ElevatedButton(
-                        onPressed: () async {
-                          await _stopStreaming();
-                          await _stopStreaming();
-                          await _startStreaming();
-                          ref.updateState(StreamState.start);
-                        },
-                        child: const Text("Start Stream"),
-                      );
-                    } else {
-                      return ElevatedButton(
-                        onPressed: () async {
-                          await _stopStreaming();
-                          ref.updateState(StreamState.initial);
-                        },
-                        child: const Text("Stop Stream"),
-                      );
-                    }
-                  })
-                : const CircularProgressIndicator(),
-            StreamBuilder(
-                stream: _channel.stream,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Text(
-                      snapshot.data.toString(),
-                      style: const TextStyle(fontSize: 24),
+                  return RotatedBox(
+                    quarterTurns: 3,
+                    child: Transform.scale(
+                      scale: 1,
+                      child: AspectRatio(
+                        aspectRatio: _controller.value.aspectRatio,
+                        child: OverflowBox(
+                          alignment: Alignment.center,
+                          child: FittedBox(
+                            fit: BoxFit.fill,
+                            child: Container(
+                              color: Colors.red,
+                              height: 600,
+                              child: CameraPreview(_controller),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                } else {
+                  return Container(
+                    height: 500,
+                    width: 400,
+                    color: Colors.grey,
+                  );
+                  //
+                }
+              }),
+
+              context.watch<SignProvider>().state == StreamState.initial ||
+                      context.watch<SignProvider>().state == StreamState.start
+                  ? Consumer<SignProvider>(builder: (context, ref, child) {
+                      if (ref.state == StreamState.initial) {
+                        return ElevatedButton(
+                          onPressed: () async {
+                            await _stopStreaming();
+                            await _stopStreaming();
+                            await _startStreaming();
+                            ref.updateState(StreamState.start);
+                          },
+                          child: const Text("Start Stream"),
+                        );
+                      } else {
+                        return ElevatedButton(
+                          onPressed: () async {
+                            await _stopStreaming();
+                            ref.updateState(StreamState.initial);
+                          },
+                          child: const Text("Stop Stream"),
+                        );
+                      }
+                    })
+                  : const SizedBox.shrink(),
+              const SizedBox(
+                height: 40,
+              ),
+              StreamBuilder(
+                  stream: _channel.stream,
+                  builder: (context, snapshot) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: Colors.black, // Border color
+                          width: 2.0, // Border width
+                        ),
+                      ),
+                      height: 100,
+                      width: 400,
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Text(
+                          snapshot.hasData
+                              ? snapshot.data.toString()
+                              : "Reverse SIgn Text",
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ),
                     );
-                  } else {
-                    return const CircularProgressIndicator();
-                  }
-                }),
-            // Consumer<SignProvider>(builder: (context, ref, child) {
-            //   if (ref.iamge != null) {
-            //     return Image.memory(ref.iamge!);
-            //   } else {
-            //     return CircularProgressIndicator();
-            //   }
-            // }),
-          ],
+                  }),
+              // Consumer<SignProvider>(builder: (context, ref, child) {
+              //   if (ref.iamge != null) {
+              //     return Image.memory(ref.iamge!);
+              //   } else {
+              //     return CircularProgressIndicator();
+              //   }
+              // }),
+            ],
+          ),
         ),
       ),
     );
@@ -230,7 +254,7 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
     await _startStreaming();
     context.read<SignProvider>().updateState(StreamState.start);
     print("here");
-    await Future.delayed(Duration(seconds: 1));
+    await Future.delayed(const Duration(seconds: 1));
     await _stopStreaming();
     context.read<SignProvider>().updateState(StreamState.initial);
     print("there");
@@ -381,4 +405,18 @@ class _YUVProcessingMessage {
   final SendPort replyPort;
 
   _YUVProcessingMessage(this.cameraImage, this.replyPort);
+}
+
+class _MediaSizeClipper extends CustomClipper<Rect> {
+  final Size mediaSize;
+  const _MediaSizeClipper(this.mediaSize);
+  @override
+  Rect getClip(Size size) {
+    return Rect.fromLTWH(0, 0, mediaSize.width, mediaSize.height);
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Rect> oldClipper) {
+    return true;
+  }
 }

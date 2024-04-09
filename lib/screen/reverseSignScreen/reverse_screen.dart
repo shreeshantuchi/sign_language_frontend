@@ -13,36 +13,77 @@ class ReverseScreen extends StatefulWidget {
 
 class _ReverseScreenState extends State<ReverseScreen> {
   @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     TextEditingController textEditingController = TextEditingController();
-    return Scaffold(
-      appBar: AppBar(),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextField(
-                decoration: const InputDecoration(hintText: "Enter Your Text"),
-                controller: textEditingController,
+    return WillPopScope(
+      onWillPop: () async {
+        context
+            .read<DictionaryAPi>()
+            .updateReverseScreenState(ReverseScreenState.initial);
+        return true;
+      },
+      child: Scaffold(
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(80),
+          child: AppBar(
+            centerTitle: true,
+            iconTheme: const IconThemeData(color: Colors.white),
+            backgroundColor: Colors.redAccent,
+            titleTextStyle: const TextStyle(
+                color: Colors.white, fontSize: 24, fontWeight: FontWeight.w700),
+            title: const Text('Text -> Sign'),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(
+                bottom: Radius.circular(20), // Adjust the radius as needed
               ),
+            ),
+          ),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
               const SizedBox(
                 height: 20,
               ),
-              AppButton(
-                  text: "Submit",
-                  onPressed: () {
-                    context
-                        .read<DictionaryAPi>()
-                        .getReverseSignVideo(textEditingController.text);
-                  }),
-              const SizedBox(
-                height: 40,
-              ),
               const SwitchWidget(),
-              Text(
-                  context.watch<DictionaryAPi>().reverseScreenState.toString()),
+              const SizedBox(
+                height: 300,
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      decoration: const InputDecoration(
+                          hintText: "Enter Your Text",
+                          border: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                  width: 3.0,
+                                  color: Colors
+                                      .black // Adjust the width of the border
+                                  ),
+                              borderRadius:
+                                  BorderRadius.all(const Radius.circular(20)))),
+                      controller: textEditingController,
+                    ),
+                  ),
+                  AppButton(
+                      width: 90,
+                      text: "Submit",
+                      onPressed: () {
+                        context
+                            .read<DictionaryAPi>()
+                            .getReverseSignVideo(textEditingController.text);
+                      }),
+                ],
+              ),
             ],
           ),
         ),
@@ -60,9 +101,22 @@ class SwitchWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     switch (context.watch<DictionaryAPi>().reverseScreenState) {
       case ReverseScreenState.initial:
-        return const SizedBox.shrink();
+        return Container(
+          height: 300,
+          width: 400,
+          color: Colors.grey[400],
+        );
       case ReverseScreenState.fetch:
-        return const CircularProgressIndicator();
+        return Container(
+          height: 300,
+          width: 400,
+          color: Colors.grey[400],
+          child: Center(
+            child: const CircularProgressIndicator(
+              color: Colors.white,
+            ),
+          ),
+        );
       case ReverseScreenState.done:
         return const Column(
           children: [
@@ -72,7 +126,7 @@ class SwitchWidget extends StatelessWidget {
             SizedBox(
               height: 20,
             ),
-             VideoPlayerScreen(
+            VideoPlayerScreen(
                 videoUrl: "http://10.0.2.2:8000/media/output/video.mp4"),
           ],
         );
