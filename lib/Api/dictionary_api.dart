@@ -18,7 +18,6 @@ class DictionaryAPi with ChangeNotifier {
   List<DisctionaryModle> filteredDictionary = [];
   List<DisctionaryModle> dictionary = [];
   Future<List<DisctionaryModle>> getDectionary() async {
-    updateDictionaryState(DictionaryState.fetch);
     dictionary = [];
     final response =
         await http.get(Uri.parse('http://10.0.2.2:8000/dictionary/list'));
@@ -27,25 +26,23 @@ class DictionaryAPi with ChangeNotifier {
     if (response.statusCode == 200) {
       // If the server returns a 200 OK response, parse the JSON
       List<dynamic> data = json.decode(response.body);
-     // print(data);
+      // print(data);
       for (var element in data) {
         dictionary.add(
-          DisctionaryModle(name: element["name"], id: element["id"]),
+          DisctionaryModle(
+              name: element["name"],
+              id: element["id"],
+              videoUrl: element["videoUrl"]),
         );
       }
       filteredDictionary = dictionary;
-      updateDictionaryState(DictionaryState.done);
+
       return dictionary;
     } else {
       // If the server did not return a 200 OK response,
       // throw an exception.
       throw Exception('Failed to load data');
     }
-  }
-
-  void updateDictionaryState(DictionaryState state) {
-    dictionaryState = state;
-    notifyListeners();
   }
 
   void updateReverseScreenState(ReverseScreenState state) {
@@ -66,7 +63,7 @@ class DictionaryAPi with ChangeNotifier {
           .where((element) =>
               element.name.toLowerCase().contains(text.toLowerCase()))
           .toList();
-     // print(filteredDictionary);
+      // print(filteredDictionary);
     }
     notifyListeners();
   }
@@ -84,12 +81,12 @@ class DictionaryAPi with ChangeNotifier {
 
       if (response.statusCode == 201) {
         updateUploadVideoState(UploadVideoState.done);
-       // print('File uploaded successfully');
+        // print('File uploaded successfully');
       } else {
         //print('Failed to upload file. Status code: ${response!.statusCode}');
       }
     } catch (e) {
-     // print('Error uploading file: $e');
+      // print('Error uploading file: $e');
     }
     notifyListeners();
   }
@@ -110,10 +107,10 @@ class DictionaryAPi with ChangeNotifier {
     notifyListeners();
     final response =
         await http.get(Uri.parse('http://10.0.2.2:8000/search/$text'));
-  //  print("object2");
+    //  print("object2");
 
     if (response.statusCode == 200) {
-    updateReverseScreenState(ReverseScreenState.done);
+      updateReverseScreenState(ReverseScreenState.done);
       //(reverseScreenState.toString());
       notifyListeners();
       // If the server returns a 200 OK response, parse the JSON
@@ -123,10 +120,5 @@ class DictionaryAPi with ChangeNotifier {
       throw Exception('Failed to load data');
     }
     notifyListeners();
-  }
-
-  @override
-  void notifyListeners() {
-    super.notifyListeners();
   }
 }

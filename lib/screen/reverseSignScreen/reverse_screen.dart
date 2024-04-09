@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sign_language_record_app/Api/dictionary_api.dart';
+import 'package:sign_language_record_app/provider/signDetectState/sign_detect_state_Provider.dart';
 import 'package:sign_language_record_app/screen/videoPlayerScreen/video_player.dart';
 import 'package:sign_language_record_app/widget/app_button.dart';
 import 'package:provider/provider.dart';
@@ -22,7 +23,6 @@ class _ReverseScreenState extends State<ReverseScreen> {
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController textEditingController = TextEditingController();
     return WillPopScope(
       onWillPop: () async {
         context
@@ -52,48 +52,53 @@ class _ReverseScreenState extends State<ReverseScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
           child: Stack(
             children: [
-              SingleChildScrollView(
+              const SingleChildScrollView(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    const SizedBox(
+                    SizedBox(
                       height: 20,
                     ),
-                    const SwitchWidget(),
-                    const SizedBox(
+                    SwitchWidget(),
+                    SizedBox(
                       height: 250,
                     ),
                   ],
                 ),
               ),
               Positioned(
-                  top: 500,
-                  left: 20,
-                  child: Searchfield(
-                      textEditingController: textEditingController)),
+                top: context.watch<SignProvider>().isTextFieldFocus ? 330 : 500,
+                left: 0,
+                child: AnimatedPositioned(
+                  duration: const Duration(milliseconds: 300),
+                  top: context.watch<SignProvider>().isTextFieldFocus
+                      ? 330
+                      : 500,
+                  left: 0,
+                  child: searchField(),
+                ),
+              ),
             ],
           ),
         ),
       ),
     );
   }
-}
 
-class Searchfield extends StatelessWidget {
-  const Searchfield({
-    super.key,
-    required this.textEditingController,
-  });
-
-  final TextEditingController textEditingController;
-
-  @override
-  Widget build(BuildContext context) {
+  Row searchField() {
+    TextEditingController textEditingController = TextEditingController();
     return Row(
       children: [
         SizedBox(
-          width: 150,
+          width: 250,
           child: TextField(
+            onTap: () => context.read<SignProvider>().updateFocus(true),
+            onSubmitted: (value) {
+              context.read<SignProvider>().updateFocus(false);
+              context
+                  .read<DictionaryAPi>()
+                  .getReverseSignVideo(textEditingController.text);
+            },
             decoration: const InputDecoration(
                 hintText: "Enter Your Text",
                 border: OutlineInputBorder(
@@ -105,10 +110,15 @@ class Searchfield extends StatelessWidget {
             controller: textEditingController,
           ),
         ),
+        const SizedBox(
+          width: 10,
+        ),
         AppButton(
             width: 90,
             text: "Submit",
             onPressed: () {
+              FocusScope.of(context).unfocus();
+              context.read<SignProvider>().updateFocus(false);
               context
                   .read<DictionaryAPi>()
                   .getReverseSignVideo(textEditingController.text);
@@ -137,8 +147,8 @@ class SwitchWidget extends StatelessWidget {
           height: 300,
           width: 400,
           color: Colors.grey[400],
-          child: Center(
-            child: const CircularProgressIndicator(
+          child: const Center(
+            child: CircularProgressIndicator(
               color: Colors.white,
             ),
           ),

@@ -52,12 +52,18 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
   @override
   void dispose() async {
     super.dispose();
-    await _channel.sink.close();
-    _imageProcessingIsolate.kill(priority: Isolate.immediate);
-    _yuvIsolate.kill(priority: Isolate.immediate);
+    // Close channels and ports synchronously
+    _channel.sink.close();
     _imageProcessingReceivePort.close();
     _yuvReceivePort.close();
+
+    // Terminate isolates synchronously
+    _imageProcessingIsolate.kill(priority: Isolate.immediate);
+    _yuvIsolate.kill(priority: Isolate.immediate);
+
+    // Dispose of resources that don't depend on async operations
     await _controller.dispose();
+    // Call super.dispose() at the end
   }
 
   // Initialize the image processing isolate and communication ports
@@ -79,12 +85,22 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
     context.read<SignProvider>().updateState(StreamState.initial);
     await _controller.initialize();
     context.read<SignProvider>().updateState(StreamState.start);
+    context
+        .read<SignProvider>()
+        .updateInitializingState(InitializingState.initial);
     _startStreaming();
     await Future.delayed(const Duration(seconds: 3));
     await _stopStreaming();
     _startStreaming();
     await Future.delayed(const Duration(seconds: 3));
     _stopStreaming();
+    await Future.delayed(const Duration(seconds: 3));
+    if (!mounted) {
+      return;
+    }
+    context
+        .read<SignProvider>()
+        .updateInitializingState(InitializingState.done);
     context.read<SignProvider>().updateState(StreamState.initial);
     context.read<SignProvider>().updateCameraState(CameraControllerState.start);
   }
@@ -93,6 +109,9 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
   // Send bytes to server
 
   Future<void> _startStreaming() async {
+    if (!mounted) {
+      return;
+    }
     print("streaming start");
     if (!_controller.value.isInitialized) {
       print("not initialized");
@@ -105,13 +124,18 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
         return;
       }
       print("image streaming started");
-      _sendCameraImageToIsolate(
-          image, _imageProcessingSendPort, context, _channel);
-      _sendYUVToIsolate(image, _yuvSendPort);
+      if (mounted) {
+        _sendCameraImageToIsolate(image, _imageProcessingSendPort, context,
+            context.read<SignProvider>().state, _channel);
+        _sendYUVToIsolate(image, _yuvSendPort);
+      }
     });
   }
 
   Future<void> _stopStreaming() async {
+    if (!mounted) {
+      return;
+    }
     if (_controller.value.isStreamingImages) {
       await _controller.stopImageStream();
 
@@ -132,6 +156,21 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return context.watch<SignProvider>().initializingState ==
+            InitializingState.done
+        ? realScreen(context)
+        : loadingScree(context);
+  }
+
+  Scaffold loadingScree(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: const CircularProgressIndicator(),
+      ),
+    );
+  }
+
+  Scaffold realScreen(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(80),
@@ -247,9 +286,9 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
 }
 
 void _sendVideoStream(
-    Uint8List? data, BuildContext context, IOWebSocketChannel channel) {
+    Uint8List? data, StreamState? state, IOWebSocketChannel channel) {
   print("data :" + data.toString());
-  if (data != null && context.read<SignProvider>().state == StreamState.start) {
+  if (data != null && state == StreamState.start && channel.closeCode != null) {
     String newData = base64Encode(data);
     channel.sink.add(newData);
 
@@ -261,16 +300,16 @@ void _sendCameraImageToIsolate(
     CameraImage image,
     SendPort imageProcessingSendPort,
     BuildContext context,
+    StreamState? state,
     IOWebSocketChannel channel) async {
   final replyPort = ReceivePort();
   imageProcessingSendPort
       .send(_ImageProcessingMessage(image, replyPort.sendPort));
   final Uint8List? bytes = await replyPort.first;
 
-  if (bytes != null &&
-      context.read<SignProvider>().state == StreamState.start) {
-    //context.read<SignProvider>().updateImage(bytes);
-    _sendVideoStream(Uint8List.fromList(bytes), context, channel);
+  if (bytes != null && state == StreamState.start) {
+    //context.read<SignProvider>().updateImage(bytes);sen
+    _sendVideoStream(Uint8List.fromList(bytes), state, channel);
   }
   replyPort.close();
 }
