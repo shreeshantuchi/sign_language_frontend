@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:sign_language_record_app/Api/dictionary_api.dart';
 import 'package:sign_language_record_app/screen/videoPlayerScreen/video_player.dart';
 import 'package:sign_language_record_app/widget/app_button.dart';
@@ -29,6 +31,7 @@ class _ReverseScreenState extends State<ReverseScreen> {
         return true;
       },
       child: Scaffold(
+        resizeToAvoidBottomInset: true,
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(80),
           child: AppBar(
@@ -47,47 +50,70 @@ class _ReverseScreenState extends State<ReverseScreen> {
         ),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
+          child: Stack(
             children: [
-              const SizedBox(
-                height: 20,
-              ),
-              const SwitchWidget(),
-              const SizedBox(
-                height: 300,
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      decoration: const InputDecoration(
-                          hintText: "Enter Your Text",
-                          border: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                  width: 3.0,
-                                  color: Colors
-                                      .black // Adjust the width of the border
-                                  ),
-                              borderRadius:
-                                  BorderRadius.all(const Radius.circular(20)))),
-                      controller: textEditingController,
+              SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    const SizedBox(
+                      height: 20,
                     ),
-                  ),
-                  AppButton(
-                      width: 90,
-                      text: "Submit",
-                      onPressed: () {
-                        context
-                            .read<DictionaryAPi>()
-                            .getReverseSignVideo(textEditingController.text);
-                      }),
-                ],
+                    const SwitchWidget(),
+                    const SizedBox(
+                      height: 250,
+                    ),
+                  ],
+                ),
               ),
+              Positioned(
+                  top: 500,
+                  left: 20,
+                  child: Searchfield(
+                      textEditingController: textEditingController)),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class Searchfield extends StatelessWidget {
+  const Searchfield({
+    super.key,
+    required this.textEditingController,
+  });
+
+  final TextEditingController textEditingController;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        SizedBox(
+          width: 150,
+          child: TextField(
+            decoration: const InputDecoration(
+                hintText: "Enter Your Text",
+                border: OutlineInputBorder(
+                    borderSide: BorderSide(
+                        width: 3.0,
+                        color: Colors.black // Adjust the width of the border
+                        ),
+                    borderRadius: BorderRadius.all(const Radius.circular(20)))),
+            controller: textEditingController,
+          ),
+        ),
+        AppButton(
+            width: 90,
+            text: "Submit",
+            onPressed: () {
+              context
+                  .read<DictionaryAPi>()
+                  .getReverseSignVideo(textEditingController.text);
+            }),
+      ],
     );
   }
 }
