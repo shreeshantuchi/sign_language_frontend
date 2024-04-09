@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
 import 'package:sign_language_record_app/provider/signDetectState/sign_detect_state_Provider.dart';
@@ -77,6 +78,11 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
     _yuvSendPort = await _yuvReceivePort.first;
     context.read<SignProvider>().updateState(StreamState.initial);
     await _controller.initialize();
+    context.read<SignProvider>().updateState(StreamState.start);
+    _startStreaming();
+    await Future.delayed(Duration(seconds: 3));
+    _stopStreaming();
+    context.read<SignProvider>().updateState(StreamState.initial);
     context.read<SignProvider>().updateCameraState(CameraControllerState.start);
   }
   // Send camera image to image processing isolate for conversion
@@ -84,13 +90,18 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
   // Send bytes to server
 
   Future<void> _startStreaming() async {
+    print("streaming start");
     if (!_controller.value.isInitialized) {
+      print("not initialized");
       return;
     }
+    print("a");
     await _controller.startImageStream((CameraImage image) {
       if (!mounted) {
+        print("unmounted");
         return;
       }
+      print("image streaming started");
       _sendCameraImageToIsolate(
           image, _imageProcessingSendPort, context, _channel);
       _sendYUVToIsolate(image, _yuvSendPort);
@@ -98,6 +109,19 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
   }
 
   Future<void> _stopStreaming() async {
+    if (_controller.value.isStreamingImages) {
+      await _controller.stopImageStream();
+
+      // Clear the message queues of the isolates
+      _imageProcessingReceivePort.close();
+      _imageProcessingReceivePort = ReceivePort();
+      _yuvReceivePort.close();
+      _yuvReceivePort = ReceivePort();
+      print("stopped image stream");
+
+      // Wait for the isolates to clear their message queues
+      //await Future.delayed(Duration(milliseconds: 50));
+    }
     if (_controller.value.isStreamingImages) {
       await _controller.stopImageStream();
     }
@@ -141,6 +165,8 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
             // ),
             Consumer<SignProvider>(builder: (context, ref, child) {
               if (ref.cameraState == CameraControllerState.start) {
+                //resetstream();
+                print("one");
                 return RotatedBox(
                   quarterTurns: -1,
                   child: CameraPreview(_controller),
@@ -157,6 +183,7 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
                     if (ref.state == StreamState.initial) {
                       return ElevatedButton(
                         onPressed: () async {
+                          await _stopStreaming();
                           await _stopStreaming();
                           await _startStreaming();
                           ref.updateState(StreamState.start);
@@ -186,25 +213,37 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
                     return const CircularProgressIndicator();
                   }
                 }),
-            Consumer<SignProvider>(builder: (context, ref, child) {
-              if (ref.iamge != null) {
-                return Image.memory(ref.iamge!);
-              } else {
-                return CircularProgressIndicator();
-              }
-            }),
+            // Consumer<SignProvider>(builder: (context, ref, child) {
+            //   if (ref.iamge != null) {
+            //     return Image.memory(ref.iamge!);
+            //   } else {
+            //     return CircularProgressIndicator();
+            //   }
+            // }),
           ],
         ),
       ),
     );
   }
+
+  void resetstream() async {
+    await _startStreaming();
+    context.read<SignProvider>().updateState(StreamState.start);
+    print("here");
+    await Future.delayed(Duration(seconds: 1));
+    await _stopStreaming();
+    context.read<SignProvider>().updateState(StreamState.initial);
+    print("there");
+  }
 }
 
 void _sendVideoStream(
     Uint8List? data, BuildContext context, IOWebSocketChannel channel) {
+  print("data :" + data.toString());
   if (data != null && context.read<SignProvider>().state == StreamState.start) {
     String newData = base64Encode(data);
-    // channel.sink.add(newData);
+    channel.sink.add(newData);
+
     // context.read<IProvider>().updateImage(data);
   }
 }
@@ -221,7 +260,7 @@ void _sendCameraImageToIsolate(
 
   if (bytes != null &&
       context.read<SignProvider>().state == StreamState.start) {
-    context.read<SignProvider>().updateImage(bytes);
+    //context.read<SignProvider>().updateImage(bytes);
     _sendVideoStream(Uint8List.fromList(bytes), context, channel);
   }
   replyPort.close();
