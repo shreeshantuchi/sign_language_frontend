@@ -28,63 +28,52 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Expanded(
-          child: OverflowBox(
-            alignment: Alignment.center,
-            maxHeight: MediaQuery.of(context).size.height / 2,
-            child: FittedBox(
-              fit: BoxFit.cover,
-              child: SizedBox(
-                width: _controller.value.aspectRatio *
-                    (MediaQuery.of(context).size.height / 2),
-                height: MediaQuery.of(context).size.height / 2,
-                child: Align(
-                  alignment: Alignment.center,
-                  child: FutureBuilder(
-                    future: _initializeVideoPlayerFuture,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done) {
-                        return Stack(
-                          children: [
-                            VideoPlayer(_controller),
-                            Positioned(
-                              bottom: 10,
-                              left: 350,
-                              child: FloatingActionButton(
-                                backgroundColor:
-                                    const Color(0xffDCF2F1).withOpacity(0.5),
-                                onPressed: () {
-                                  setState(() {
-                                    if (_controller.value.isPlaying) {
-                                      _controller.pause();
-                                    } else {
-                                      _controller.play();
-                                    }
-                                  });
-                                },
-                                child: Icon(
-                                  _controller.value.isPlaying
-                                      ? Icons.pause
-                                      : Icons.play_arrow,
-                                ),
-                              ),
+        FutureBuilder(
+          future: _initializeVideoPlayerFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              return Container(
+                height: 500,
+                child: Transform.scale(
+                  scale: 1.5,
+                  child: AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: Stack(
+                      children: [
+                        VideoPlayer(_controller),
+                        Positioned(
+                          bottom: 10,
+                          left: 350,
+                          child: FloatingActionButton(
+                            backgroundColor:
+                                const Color(0xffDCF2F1).withOpacity(0.5),
+                            onPressed: () {
+                              setState(() {
+                                if (_controller.value.isPlaying) {
+                                  _controller.pause();
+                                } else {
+                                  _controller.play();
+                                }
+                              });
+                            },
+                            child: Icon(
+                              _controller.value.isPlaying
+                                  ? Icons.pause
+                                  : Icons.play_arrow,
                             ),
-                          ],
-                        );
-                      } else {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-                    },
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ),
-        ),
-        Expanded(
-          child: FittedBox(),
+              );
+            } else {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+          },
         ),
       ],
     );
