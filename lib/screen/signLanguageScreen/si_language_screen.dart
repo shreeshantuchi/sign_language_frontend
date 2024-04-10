@@ -117,6 +117,7 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
     if (!mounted) {
       return;
     }
+    context.read<SignProvider>().clearReceivedSignText();
     print("streaming start");
     if (!_controller.value.isInitialized) {
       print("not initialized");
@@ -295,9 +296,11 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
                       ),
                     ),
                   ),
-
+                  SizedBox(
+                    height: 50,
+                  ),
                   Container(
-                    height: 90,
+                    height: 120,
                     width: 400,
                     decoration: BoxDecoration(
                       border: Border.all(width: 2, color: Colors.black),
@@ -345,27 +348,10 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
                     StreamBuilder(
                         stream: _channel.stream,
                         builder: (context, snapshot) {
-                          _scheduleStateUpdate(snapshot.data.toString());
-                          return Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: Colors.black, // Border color
-                                width: 2.0, // Border width
-                              ),
-                            ),
-                            height: 100,
-                            width: 400,
-                            child: Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: Text(
-                                snapshot.hasData
-                                    ? snapshot.data.toString()
-                                    : "Reverse Sign Text",
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            ),
-                          );
+                          if (snapshot.data != null) {
+                            _scheduleStateUpdate(snapshot.data.toString());
+                          }
+                          return SizedBox.shrink();
                         }),
                   // Consumer<SignProvider>(builder: (context, ref, child) {
                   //   if (ref.iamge != null) {

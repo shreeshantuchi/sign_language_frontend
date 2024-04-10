@@ -13,18 +13,7 @@ enum CameraControllerState { initial, start }
 class SignProvider extends ChangeNotifier {
   bool isTextFieldFocus = false;
   String signText = "";
-  List<String> receivedSignText = [
-    "namaste",
-    "k",
-    "khaja",
-    "college",
-    "janchu"
-        "namaste",
-    "k",
-    "khaja",
-    "college",
-    "janchu"
-  ];
+  List<String> receivedSignText = [];
   List<String> listSignText = [];
 
   void clearReceivedSignText() {
@@ -40,7 +29,7 @@ class SignProvider extends ChangeNotifier {
 
   void addReceivedSignText(String text) {
     if (!receivedSignText.contains(text)) {
-      if (receivedSignText.length > 4) {
+      if (receivedSignText.length > 2) {
         receivedSignText.removeAt(0);
       }
       receivedSignText.add(text);
