@@ -7,13 +7,10 @@ import 'package:sign_language_record_app/modle/dictionary_modle.dart';
 
 enum DictionaryState { initial, fetch, done }
 
-enum ReverseScreenState { initial, fetch, done }
-
 enum UploadVideoState { initial, upload, done }
 
 class DictionaryAPi with ChangeNotifier {
   DictionaryState dictionaryState = DictionaryState.initial;
-  ReverseScreenState reverseScreenState = ReverseScreenState.initial;
   UploadVideoState uploadVideoState = UploadVideoState.initial;
   List<DisctionaryModel> filteredDictionary = [];
   List<DisctionaryModel> dictionary = [];
@@ -45,11 +42,6 @@ class DictionaryAPi with ChangeNotifier {
       // throw an exception.
       throw Exception('Failed to load data');
     }
-  }
-
-  void updateReverseScreenState(ReverseScreenState state) {
-    reverseScreenState = state;
-    notifyListeners();
   }
 
   void updateUploadVideoState(UploadVideoState state) {
@@ -102,25 +94,5 @@ class DictionaryAPi with ChangeNotifier {
 
     // Check if the extension is in the list of video extensions
     return videoExtensions.contains(extension);
-  }
-
-  void getReverseSignVideo(String text) async {
-    updateReverseScreenState(ReverseScreenState.fetch);
-    notifyListeners();
-    final response =
-        await http.get(Uri.parse('http://10.0.2.2:8000/search/$text'));
-    //  print("object2");
-
-    if (response.statusCode == 200) {
-      updateReverseScreenState(ReverseScreenState.done);
-      //(reverseScreenState.toString());
-      notifyListeners();
-      // If the server returns a 200 OK response, parse the JSON
-    } else {
-      // If the server did not return a 200 OK response,
-      // throw an exception.
-      throw Exception('Failed to load data');
-    }
-    notifyListeners();
   }
 }

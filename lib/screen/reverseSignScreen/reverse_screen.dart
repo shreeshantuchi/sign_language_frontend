@@ -28,7 +28,7 @@ class _ReverseScreenState extends State<ReverseScreen> {
     return WillPopScope(
       onWillPop: () async {
         context
-            .read<DictionaryAPi>()
+            .read<RevereseScreenProvider>()
             .updateReverseScreenState(ReverseScreenState.initial);
         return true;
       },
@@ -91,7 +91,7 @@ class _ReverseScreenState extends State<ReverseScreen> {
             onSubmitted: (value) {
               context.read<SignProvider>().updateFocus(false);
               context
-                  .read<DictionaryAPi>()
+                  .read<RevereseScreenProvider>()
                   .getReverseSignVideo(textEditingController.text);
             },
             decoration: const InputDecoration(
@@ -115,7 +115,7 @@ class _ReverseScreenState extends State<ReverseScreen> {
               FocusScope.of(context).unfocus();
               context.read<SignProvider>().updateFocus(false);
               context
-                  .read<DictionaryAPi>()
+                  .read<RevereseScreenProvider>()
                   .getReverseSignVideo(textEditingController.text);
             }),
       ],
@@ -124,60 +124,43 @@ class _ReverseScreenState extends State<ReverseScreen> {
 }
 
 class SwitchWidget extends StatelessWidget {
-  final String switchCase = 'case1';
-
-  const SwitchWidget({super.key}); // Change this value based on your condition
+  const SwitchWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    switch (context.watch<DictionaryAPi>().reverseScreenState) {
-      case ReverseScreenState.initial:
-        return Container(
-          height: 300,
-          width: 400,
-          color: Colors.grey[400],
-        );
-      case ReverseScreenState.fetch:
-        return Container(
-          height: 300,
-          width: 400,
-          color: Colors.grey[400],
-          child: const Center(
-            child: CircularProgressIndicator(
-              color: Colors.white,
-            ),
-          ),
-        );
-      case ReverseScreenState.done:
-        switch (context.watch<RevereseScreenProvider>().change) {
-          case true:
-            return Stack(
-              children: [
-                const VideoPlayerScreen(
-                    videoUrl:
-                        "http://10.0.2.2:8000/media/output/processed_video.mp4"),
-                Positioned(
-                  top: 10,
-                  right: 10,
-                  child: IconButton(
-                    onPressed: () =>
-                        context.read<RevereseScreenProvider>().toggle(),
-                    icon: Icon(Icons.change_circle),
-                  ),
-                )
-              ],
+    return Consumer<RevereseScreenProvider>(
+      builder: (context, provider, child) {
+        switch (provider.reverseScreenState) {
+          case ReverseScreenState.initial:
+            return Container(
+              height: 300,
+              width: 400,
+              color: Colors.grey[400],
             );
-          case false:
+          case ReverseScreenState.fetch:
+            return Container(
+              height: 300,
+              width: 400,
+              color: Colors.grey[400],
+              child: const Center(
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                ),
+              ),
+            );
+          case ReverseScreenState.done:
             return Stack(
               children: [
-                const VideoPlayerScreen(
-                    videoUrl: "http://10.0.2.2:8000/media/output/video.mp4"),
+                VideoPlayerScreen(
+                  videoUrl: provider.change
+                      ? "http://10.0.2.2:8000/media/output/processed_video.mp4"
+                      : "http://10.0.2.2:8000/media/output/video.mp4",
+                ),
                 Positioned(
                   top: 10,
                   right: 10,
                   child: IconButton(
-                    onPressed: () =>
-                        context.read<RevereseScreenProvider>().toggle(),
+                    onPressed: () => provider.toggle(),
                     icon: Icon(
                       Icons.change_circle,
                       size: 30,
@@ -187,10 +170,10 @@ class SwitchWidget extends StatelessWidget {
                 )
               ],
             );
+          default:
+            return SizedBox.shrink();
         }
-
-      default:
-        return const SizedBox.shrink();
-    }
+      },
+    );
   }
 }
