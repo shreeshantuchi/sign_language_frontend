@@ -66,17 +66,11 @@ class _ReverseScreenState extends State<ReverseScreen> {
                   ],
                 ),
               ),
-              Positioned(
-                top: context.watch<SignProvider>().isTextFieldFocus ? 330 : 500,
-                left: 0,
-                child: AnimatedPositioned(
-                  duration: const Duration(milliseconds: 300),
-                  top: context.watch<SignProvider>().isTextFieldFocus
-                      ? 330
-                      : 500,
-                  left: 0,
-                  child: searchField(),
-                ),
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 300),
+                bottom: 0,
+                left: 15,
+                child: searchField(),
               ),
             ],
           ),

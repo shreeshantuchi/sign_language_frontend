@@ -17,6 +17,7 @@ class DictionaryAPi with ChangeNotifier {
   UploadVideoState uploadVideoState = UploadVideoState.initial;
   List<DisctionaryModel> filteredDictionary = [];
   List<DisctionaryModel> dictionary = [];
+
   Future<List<DisctionaryModel>> getDectionary() async {
     dictionary = [];
     final response =

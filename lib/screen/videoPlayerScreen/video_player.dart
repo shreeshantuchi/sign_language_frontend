@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoPlayerScreen extends StatefulWidget {
@@ -33,7 +34,33 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             if (snapshot.connectionState == ConnectionState.done) {
               return AspectRatio(
                 aspectRatio: _controller.value.aspectRatio,
-                child: VideoPlayer(_controller),
+                child: Stack(
+                  children: [
+                    VideoPlayer(_controller),
+                    Positioned(
+                      bottom: 10,
+                      left: 350,
+                      child: FloatingActionButton(
+                        backgroundColor:
+                            const Color(0xffDCF2F1).withOpacity(0.5),
+                        onPressed: () {
+                          setState(() {
+                            if (_controller.value.isPlaying) {
+                              _controller.pause();
+                            } else {
+                              _controller.play();
+                            }
+                          });
+                        },
+                        child: Icon(
+                          _controller.value.isPlaying
+                              ? Icons.pause
+                              : Icons.play_arrow,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               );
             } else {
               return const Center(
@@ -41,24 +68,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
               );
             }
           },
-        ),
-        const SizedBox(
-          height: 20,
-        ),
-        FloatingActionButton(
-          backgroundColor: const Color(0xffDCF2F1),
-          onPressed: () {
-            setState(() {
-              if (_controller.value.isPlaying) {
-                _controller.pause();
-              } else {
-                _controller.play();
-              }
-            });
-          },
-          child: Icon(
-            _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-          ),
         ),
       ],
     );
