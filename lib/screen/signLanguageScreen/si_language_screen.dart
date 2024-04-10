@@ -345,9 +345,7 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
                     StreamBuilder(
                         stream: _channel.stream,
                         builder: (context, snapshot) {
-                          context
-                              .read<SignProvider>()
-                              .addReceivedSignText(snapshot.data.toString());
+                          _scheduleStateUpdate(snapshot.data.toString());
                           return Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
@@ -383,6 +381,13 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
         ),
       ),
     );
+  }
+
+  void _scheduleStateUpdate(String text) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<SignProvider>().addReceivedSignText(text);
+      // Update your state here using setState or any other method
+    });
   }
 }
 
