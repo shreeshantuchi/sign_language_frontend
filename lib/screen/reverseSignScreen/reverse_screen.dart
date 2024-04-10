@@ -152,7 +152,7 @@ class SwitchWidget extends StatelessWidget {
             return Stack(
               children: [
                 VideoPlayerScreen(
-                  videoUrl: provider.change
+                  videoUrl: provider.change == ChangeState.first
                       ? "http://10.0.2.2:8000/media/output/processed_video.mp4"
                       : "http://10.0.2.2:8000/media/output/video.mp4",
                 ),
@@ -160,7 +160,9 @@ class SwitchWidget extends StatelessWidget {
                   top: 10,
                   right: 10,
                   child: IconButton(
-                    onPressed: () => provider.toggle(),
+                    onPressed: () => provider.change == ChangeState.first
+                        ? provider.toggle(ChangeState.second)
+                        : provider.toggle(ChangeState.first),
                     icon: Icon(
                       Icons.change_circle,
                       size: 30,

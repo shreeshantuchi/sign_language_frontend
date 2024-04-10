@@ -3,18 +3,23 @@ import 'package:http/http.dart' as http;
 
 enum ReverseScreenState { initial, fetch, done }
 
+enum ChangeState {
+  first,
+  second,
+}
+
 class RevereseScreenProvider with ChangeNotifier {
   ReverseScreenState reverseScreenState = ReverseScreenState.initial;
 
-  bool change = false;
+  ChangeState change = ChangeState.first;
 
   void updateReverseScreenState(ReverseScreenState state) {
     reverseScreenState = state;
     notifyListeners();
   }
 
-  void toggle() {
-    change = !change;
+  void toggle(ChangeState state) {
+    change = state;
     notifyListeners();
   }
 
