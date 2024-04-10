@@ -32,34 +32,36 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           future: _initializeVideoPlayerFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
-              return AspectRatio(
-                aspectRatio: _controller.value.aspectRatio,
-                child: Stack(
-                  children: [
-                    VideoPlayer(_controller),
-                    Positioned(
-                      bottom: 10,
-                      left: 350,
-                      child: FloatingActionButton(
-                        backgroundColor:
-                            const Color(0xffDCF2F1).withOpacity(0.5),
-                        onPressed: () {
-                          setState(() {
-                            if (_controller.value.isPlaying) {
-                              _controller.pause();
-                            } else {
-                              _controller.play();
-                            }
-                          });
-                        },
-                        child: Icon(
-                          _controller.value.isPlaying
-                              ? Icons.pause
-                              : Icons.play_arrow,
+              return Expanded(
+                child: AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: Stack(
+                    children: [
+                      VideoPlayer(_controller),
+                      Positioned(
+                        bottom: 10,
+                        left: 350,
+                        child: FloatingActionButton(
+                          backgroundColor:
+                              const Color(0xffDCF2F1).withOpacity(0.5),
+                          onPressed: () {
+                            setState(() {
+                              if (_controller.value.isPlaying) {
+                                _controller.pause();
+                              } else {
+                                _controller.play();
+                              }
+                            });
+                          },
+                          child: Icon(
+                            _controller.value.isPlaying
+                                ? Icons.pause
+                                : Icons.play_arrow,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             } else {
@@ -69,6 +71,10 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             }
           },
         ),
+        Expanded(
+            child: SizedBox(
+          height: 200,
+        )),
       ],
     );
   }
