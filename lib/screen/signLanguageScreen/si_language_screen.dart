@@ -258,22 +258,20 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 5),
                       child: SingleChildScrollView(
-                        child: GridView.builder(
-                          physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            childAspectRatio: 3,
-                            crossAxisCount: 3, // Number of columns
-                            crossAxisSpacing: 0.0, // No spacing between columns
-                            mainAxisSpacing: 0.0, // No spacing between rows
-                          ),
-                          itemCount: context
-                              .watch<SignProvider>()
-                              .receivedSignText
-                              .length,
-                          itemBuilder: (context, index) {
-                            return Consumer<SignProvider>(
-                              builder: (context, ref, chid) {
+                        child: Consumer<SignProvider>(
+                          builder: (context, ref, child) {
+                            return GridView.builder(
+                              physics: const NeverScrollableScrollPhysics(),
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                childAspectRatio: 3,
+                                crossAxisCount: 3, // Number of columns
+                                crossAxisSpacing:
+                                    0.0, // No spacing between columns
+                                mainAxisSpacing: 0.0, // No spacing between rows
+                              ),
+                              itemCount: ref.receivedSignText.length,
+                              itemBuilder: (context, index) {
                                 return Column(
                                   children: [
                                     AppButton(
@@ -290,13 +288,14 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
                                   ],
                                 );
                               },
+                              shrinkWrap: true,
                             );
                           },
-                          shrinkWrap: true,
                         ),
                       ),
                     ),
                   ),
+
                   Container(
                     height: 90,
                     width: 400,
@@ -346,6 +345,9 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
                     StreamBuilder(
                         stream: _channel.stream,
                         builder: (context, snapshot) {
+                          context
+                              .read<SignProvider>()
+                              .addReceivedSignText(snapshot.data.toString());
                           return Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),

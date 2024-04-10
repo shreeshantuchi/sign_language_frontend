@@ -39,11 +39,13 @@ class SignProvider extends ChangeNotifier {
   }
 
   void addReceivedSignText(String text) {
-    if (receivedSignText.length > 4) {
-      receivedSignText.removeAt(0);
+    if (!receivedSignText.contains(text)) {
+      if (receivedSignText.length > 4) {
+        receivedSignText.removeAt(0);
+      }
+      receivedSignText.add(text);
+      receivedSignText = removeDuplicates(receivedSignText);
     }
-    receivedSignText.add(text);
-    receivedSignText = removeDuplicates(receivedSignText);
     notifyListeners();
   }
 
