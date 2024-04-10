@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:video_player/video_player.dart';
@@ -28,53 +29,57 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        FutureBuilder(
-          future: _initializeVideoPlayerFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              return Container(
-                height: 500,
-                child: Transform.scale(
-                  scale: 1.5,
-                  child: AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: Stack(
-                      children: [
-                        VideoPlayer(_controller),
-                        Positioned(
-                          bottom: 10,
-                          left: 350,
-                          child: FloatingActionButton(
-                            backgroundColor:
-                                const Color(0xffDCF2F1).withOpacity(0.5),
-                            onPressed: () {
-                              setState(() {
-                                if (_controller.value.isPlaying) {
-                                  _controller.pause();
-                                } else {
-                                  _controller.play();
-                                }
-                              });
-                            },
-                            child: Icon(
-                              _controller.value.isPlaying
-                                  ? Icons.pause
-                                  : Icons.play_arrow,
-                            ),
-                          ),
-                        ),
-                      ],
+        Stack(
+          children: [
+            FutureBuilder(
+              future: _initializeVideoPlayerFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  return Container(
+                    height: 300,
+                    child: Transform.scale(
+                      scale: 1.8,
+                      child: AspectRatio(
+                        aspectRatio: 16 / 9,
+                        child: VideoPlayer(_controller),
+                      ),
                     ),
-                  ),
-                ),
-              );
-            } else {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-          },
+                  );
+                } else {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+              },
+            ),
+          ],
         ),
+        SizedBox(
+          height: 50,
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              FloatingActionButton(
+                backgroundColor: const Color(0xffDCF2F1).withOpacity(0.5),
+                onPressed: () {
+                  setState(() {
+                    if (_controller.value.isPlaying) {
+                      _controller.pause();
+                    } else {
+                      _controller.play();
+                    }
+                  });
+                },
+                child: Icon(
+                  _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                ),
+              ),
+            ],
+          ),
+        )
       ],
     );
   }
