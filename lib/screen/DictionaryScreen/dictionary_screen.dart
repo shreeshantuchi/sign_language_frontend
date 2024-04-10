@@ -109,8 +109,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     FutureBuilder(
-                        future:
-                            apiText(), //context.read<DictionaryAPi>().getDectionary(),
+                        future: context.read<DictionaryAPi>().getDectionary(),
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             return GridView.builder(
@@ -122,7 +121,10 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                                     10.0, // Spacing between columns
                                 mainAxisSpacing: 10.0, // Spacing between rows
                               ),
-                              itemCount: snapshot.data!.length,
+                              itemCount: context
+                                  .watch<DictionaryAPi>()
+                                  .filteredDictionary
+                                  .length,
                               itemBuilder: (context, index) {
                                 return Padding(
                                   padding:
@@ -130,14 +132,15 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                                   child: AppButton(
                                       height: 80,
                                       vPadding: 20,
-                                      text:
-                                          snapshot.data![index].name, // context
-                                      //.watch<DictionaryAPi>()
-                                      //.filteredDictionary[index]
-                                      //.name,
+                                      text: context
+                                          .watch<DictionaryAPi>()
+                                          .filteredDictionary[index]
+                                          .name,
                                       onPressed: () async {
-                                        modelSheet(
-                                            snapshot.data![index].videoUrl);
+                                        modelSheet(context
+                                            .read<DictionaryAPi>()
+                                            .filteredDictionary[index]
+                                            .videoUrl);
                                       }),
                                 );
                               },

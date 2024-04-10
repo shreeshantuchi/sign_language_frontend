@@ -29,6 +29,7 @@ class DictionaryAPi with ChangeNotifier {
       List<dynamic> data = json.decode(response.body);
       // print(data);
       for (var element in data) {
+        print(element["name"]);
         dictionary.add(
           DisctionaryModel(
               name: element["name"],
