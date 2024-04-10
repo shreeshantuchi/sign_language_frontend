@@ -149,43 +149,44 @@ class SwitchWidget extends StatelessWidget {
           ),
         );
       case ReverseScreenState.done:
-        if (context.watch<RevereseScreenProvider>().change) {
-          return Stack(
-            children: [
-              const VideoPlayerScreen(
-                  videoUrl:
-                      "http://10.0.2.2:8000/media/output/processed_video.mp4"),
-              Positioned(
-                top: 10,
-                right: 10,
-                child: IconButton(
-                  onPressed: () =>
-                      context.read<RevereseScreenProvider>().toggle(),
-                  icon: Icon(Icons.change_circle),
-                ),
-              )
-            ],
-          );
-        } else {
-          return Stack(
-            children: [
-              const VideoPlayerScreen(
-                  videoUrl: "http://10.0.2.2:8000/media/output/video.mp4"),
-              Positioned(
-                top: 10,
-                right: 10,
-                child: IconButton(
-                  onPressed: () =>
-                      context.read<RevereseScreenProvider>().toggle(),
-                  icon: Icon(
-                    Icons.change_circle,
-                    size: 30,
-                    color: Colors.white.withOpacity(0.8),
+        switch (context.watch<RevereseScreenProvider>().change) {
+          case true:
+            return Stack(
+              children: [
+                const VideoPlayerScreen(
+                    videoUrl:
+                        "http://10.0.2.2:8000/media/output/processed_video.mp4"),
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: IconButton(
+                    onPressed: () =>
+                        context.read<RevereseScreenProvider>().toggle(),
+                    icon: Icon(Icons.change_circle),
                   ),
-                ),
-              )
-            ],
-          );
+                )
+              ],
+            );
+          case false:
+            return Stack(
+              children: [
+                const VideoPlayerScreen(
+                    videoUrl: "http://10.0.2.2:8000/media/output/video.mp4"),
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: IconButton(
+                    onPressed: () =>
+                        context.read<RevereseScreenProvider>().toggle(),
+                    icon: Icon(
+                      Icons.change_circle,
+                      size: 30,
+                      color: Colors.white.withOpacity(0.8),
+                    ),
+                  ),
+                )
+              ],
+            );
         }
 
       default:
