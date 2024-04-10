@@ -16,13 +16,25 @@ class VideoPlayerScreen extends StatefulWidget {
 class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   late VideoPlayerController _controller;
   late Future<void> _initializeVideoPlayerFuture;
-
+  double _playbackSpeed = 1.0;
   @override
   void initState() {
     super.initState();
     _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
     _initializeVideoPlayerFuture = _controller.initialize();
     _controller.play();
+  }
+
+  void _togglePlaybackSpeed() {
+    setState(() {
+      if (_playbackSpeed == 1.0) {
+        _playbackSpeed = 0.5;
+        _controller.setPlaybackSpeed(_playbackSpeed);
+      } else {
+        _playbackSpeed = 1.0;
+        _controller.setPlaybackSpeed(_playbackSpeed);
+      }
+    });
   }
 
   @override
@@ -76,6 +88,14 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                 child: Icon(
                   _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
                 ),
+              ),
+              SizedBox(
+                width: 20,
+              ),
+              FloatingActionButton(
+                backgroundColor: const Color(0xffDCF2F1).withOpacity(0.5),
+                onPressed: _togglePlaybackSpeed,
+                child: Text(_playbackSpeed.toString()),
               ),
             ],
           ),
