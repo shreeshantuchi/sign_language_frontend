@@ -12,6 +12,7 @@ class AppButton extends StatelessWidget {
       this.height = 50,
       this.vPadding = 10,
       this.icon,
+      this.fontSize = 16,
       required this.onPressed});
   final String text;
   Color? color;
@@ -20,6 +21,7 @@ class AppButton extends StatelessWidget {
   double width;
   double height;
   IconData? icon;
+  double fontSize;
   final VoidCallback onPressed;
 
   @override
@@ -49,7 +51,7 @@ class AppButton extends StatelessWidget {
                       ),
                 Text(
                   text,
-                  style: TextStyle(fontSize: 16, color: textColor),
+                  style: TextStyle(fontSize: fontSize, color: textColor),
                 ),
               ],
             ),

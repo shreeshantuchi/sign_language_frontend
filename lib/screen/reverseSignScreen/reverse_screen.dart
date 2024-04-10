@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sign_language_record_app/Api/dictionary_api.dart';
+import 'package:sign_language_record_app/provider/reverseScreenProvider/reverese_screen_provider.dart';
 import 'package:sign_language_record_app/provider/signDetectState/sign_detect_state_Provider.dart';
 import 'package:sign_language_record_app/screen/videoPlayerScreen/video_player.dart';
 import 'package:sign_language_record_app/widget/app_button.dart';
@@ -15,6 +16,7 @@ class ReverseScreen extends StatefulWidget {
 }
 
 class _ReverseScreenState extends State<ReverseScreen> {
+  TextEditingController textEditingController = TextEditingController();
   @override
   void dispose() {
     // TODO: implement dispose
@@ -80,7 +82,6 @@ class _ReverseScreenState extends State<ReverseScreen> {
   }
 
   Row searchField() {
-    TextEditingController textEditingController = TextEditingController();
     return Row(
       children: [
         SizedBox(
@@ -148,18 +149,44 @@ class SwitchWidget extends StatelessWidget {
           ),
         );
       case ReverseScreenState.done:
-        return const Column(
-          children: [
-            VideoPlayerScreen(
-                videoUrl:
-                    "http://10.0.2.2:8000/media/output/processed_video.mp4"),
-            SizedBox(
-              height: 20,
-            ),
-            VideoPlayerScreen(
-                videoUrl: "http://10.0.2.2:8000/media/output/video.mp4"),
-          ],
-        );
+        if (context.watch<RevereseScreenProvider>().change) {
+          return Stack(
+            children: [
+              const VideoPlayerScreen(
+                  videoUrl:
+                      "http://10.0.2.2:8000/media/output/processed_video.mp4"),
+              Positioned(
+                top: 10,
+                right: 10,
+                child: IconButton(
+                  onPressed: () =>
+                      context.read<RevereseScreenProvider>().toggle(),
+                  icon: Icon(Icons.change_circle),
+                ),
+              )
+            ],
+          );
+        } else {
+          return Stack(
+            children: [
+              const VideoPlayerScreen(
+                  videoUrl: "http://10.0.2.2:8000/media/output/video.mp4"),
+              Positioned(
+                top: 10,
+                right: 10,
+                child: IconButton(
+                  onPressed: () =>
+                      context.read<RevereseScreenProvider>().toggle(),
+                  icon: Icon(
+                    Icons.change_circle,
+                    size: 30,
+                    color: Colors.white.withOpacity(0.8),
+                  ),
+                ),
+              )
+            ],
+          );
+        }
 
       default:
         return const SizedBox.shrink();

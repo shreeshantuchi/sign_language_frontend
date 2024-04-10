@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
 import 'package:sign_language_record_app/provider/signDetectState/sign_detect_state_Provider.dart';
+import 'package:sign_language_record_app/widget/app_button.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
@@ -45,6 +46,7 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
     );
 
     _channel = IOWebSocketChannel.connect("ws://10.0.2.2:8000/ws/stream/");
+
     // Initialize isolate and communication ports
     _initIsolates();
   }
@@ -60,10 +62,12 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
     // Terminate isolates synchronously
     _imageProcessingIsolate.kill(priority: Isolate.immediate);
     _yuvIsolate.kill(priority: Isolate.immediate);
-
+    print("isolates killed");
     // Dispose of resources that don't depend on async operations
     await _channel.sink.close();
+    print("channel closeddddd");
     await _controller.dispose();
+    print("channel closed");
     // Call super.dispose() at the end
   }
 
@@ -191,103 +195,192 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              children: [
-                Consumer<SignProvider>(builder: (context, ref, child) {
-                  if (ref.cameraState == CameraControllerState.start) {
-                    return RotatedBox(
-                      quarterTurns: 3,
-                      child: CameraPreview(_controller),
-                    );
-                  } else {
-                    return Container(
-                      height: 500,
-                      width: 400,
-                      color: Colors.grey,
-                    );
-                    //
-                  }
-                }),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                children: [
+                  Consumer<SignProvider>(builder: (context, ref, child) {
+                    if (ref.cameraState == CameraControllerState.start) {
+                      return RotatedBox(
+                        quarterTurns: 3,
+                        child: CameraPreview(_controller),
+                      );
+                    } else {
+                      return Container(
+                        height: 500,
+                        width: 400,
+                        color: Colors.grey,
+                      );
+                      //
+                    }
+                  }),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  context.watch<SignProvider>().state == StreamState.initial ||
+                          context.watch<SignProvider>().state ==
+                              StreamState.start
+                      ? Consumer<SignProvider>(builder: (context, ref, child) {
+                          if (ref.state == StreamState.initial) {
+                            return ElevatedButton(
+                              onPressed: () async {
+                                await _stopStreaming();
+                                await _stopStreaming();
+                                await _startStreaming();
+                                ref.updateState(StreamState.start);
+                              },
+                              child: const Text("Start Stream"),
+                            );
+                          } else {
+                            return ElevatedButton(
+                              onPressed: () async {
+                                await _stopStreaming();
+                                ref.updateState(StreamState.initial);
+                              },
+                              child: const Text("Stop Stream"),
+                            );
+                          }
+                        })
+                      : const SizedBox.shrink(),
+                  const SizedBox(
+                    height: 40,
+                  ),
+                  Container(
+                    height: 90,
+                    width: 400,
+                    decoration: BoxDecoration(
+                      border: Border.all(width: 2, color: Colors.black),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 5),
+                      child: SingleChildScrollView(
+                        child: GridView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            childAspectRatio: 3,
+                            crossAxisCount: 3, // Number of columns
+                            crossAxisSpacing: 0.0, // No spacing between columns
+                            mainAxisSpacing: 0.0, // No spacing between rows
+                          ),
+                          itemCount: context
+                              .watch<SignProvider>()
+                              .receivedSignText
+                              .length,
+                          itemBuilder: (context, index) {
+                            return Consumer<SignProvider>(
+                              builder: (context, ref, chid) {
+                                return Column(
+                                  children: [
+                                    AppButton(
+                                      fontSize: 12,
+                                      height: 30,
+                                      width: 100,
+                                      vPadding: 5,
+                                      text: ref.receivedSignText[index],
+                                      onPressed: () async {
+                                        ref.addsignText(
+                                            ref.receivedSignText[index]);
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          shrinkWrap: true,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    height: 90,
+                    width: 400,
+                    decoration: BoxDecoration(
+                      border: Border.all(width: 2, color: Colors.black),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: GestureDetector(
+                                onTap: () {
+                                  context.read<SignProvider>().deleteSignText();
+                                },
+                                child: Container(
+                                  height: 20,
+                                  width: 60,
+                                  decoration: BoxDecoration(
+                                    color: Colors.redAccent,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.arrow_back_outlined,
+                                      size: 16,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                        Text(context.watch<SignProvider>().signText),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
 
-                context.watch<SignProvider>().state == StreamState.initial ||
-                        context.watch<SignProvider>().state == StreamState.start
-                    ? Consumer<SignProvider>(builder: (context, ref, child) {
-                        if (ref.state == StreamState.initial) {
-                          return ElevatedButton(
-                            onPressed: () async {
-                              await _stopStreaming();
-                              await _stopStreaming();
-                              await _startStreaming();
-                              ref.updateState(StreamState.start);
-                            },
-                            child: const Text("Start Stream"),
-                          );
-                        } else {
-                          return ElevatedButton(
-                            onPressed: () async {
-                              await _stopStreaming();
-                              ref.updateState(StreamState.initial);
-                            },
-                            child: const Text("Stop Stream"),
-                          );
-                        }
-                      })
-                    : const SizedBox.shrink(),
-                const SizedBox(
-                  height: 40,
-                ),
-                if (_channel.closeCode == null)
-                  StreamBuilder(
-                      stream: _channel.stream,
-                      builder: (context, snapshot) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: Colors.black, // Border color
-                              width: 2.0, // Border width
+                  if (_channel.closeCode == null)
+                    StreamBuilder(
+                        stream: _channel.stream,
+                        builder: (context, snapshot) {
+                          return Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: Colors.black, // Border color
+                                width: 2.0, // Border width
+                              ),
                             ),
-                          ),
-                          height: 100,
-                          width: 400,
-                          child: Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Text(
-                              snapshot.hasData
-                                  ? snapshot.data.toString()
-                                  : "Reverse SIgn Text",
-                              style: const TextStyle(fontSize: 16),
+                            height: 100,
+                            width: 400,
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Text(
+                                snapshot.hasData
+                                    ? snapshot.data.toString()
+                                    : "Reverse Sign Text",
+                                style: const TextStyle(fontSize: 16),
+                              ),
                             ),
-                          ),
-                        );
-                      }),
-                // Consumer<SignProvider>(builder: (context, ref, child) {
-                //   if (ref.iamge != null) {
-                //     return Image.memory(ref.iamge!);
-                //   } else {
-                //     return CircularProgressIndicator();
-                //   }
-                // }),
-              ],
+                          );
+                        }),
+                  // Consumer<SignProvider>(builder: (context, ref, child) {
+                  //   if (ref.iamge != null) {
+                  //     return Image.memory(ref.iamge!);
+                  //   } else {
+                  //     return CircularProgressIndicator();
+                  //   }
+                  // }),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
-  }
-
-  void resetstream() async {
-    await _startStreaming();
-    context.read<SignProvider>().updateState(StreamState.start);
-    print("here");
-    await Future.delayed(const Duration(seconds: 1));
-    await _stopStreaming();
-    context.read<SignProvider>().updateState(StreamState.initial);
-    print("there");
   }
 }
 
@@ -297,7 +390,7 @@ void _sendVideoStream(
   if (data != null && state == StreamState.start && channel.closeCode == null) {
     String newData = base64Encode(data);
     print("sssssssssssssssssssssssssss");
-    channel.sink.add(newData);
+    if (channel.closeCode == null) channel.sink.add(newData);
 
     // context.read<IProvider>().updateImage(data);
   }
