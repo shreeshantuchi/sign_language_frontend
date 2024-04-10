@@ -149,33 +149,55 @@ class SwitchWidget extends StatelessWidget {
               ),
             );
           case ReverseScreenState.done:
-            return Stack(
-              children: [
-                VideoPlayerScreen(
-                  videoUrl: provider.change == ChangeState.first
-                      ? "http://10.0.2.2:8000/media/output/processed_video.mp4"
-                      : "http://10.0.2.2:8000/media/output/video.mp4",
-                ),
-                Positioned(
-                  top: 10,
-                  right: 10,
-                  child: IconButton(
-                    onPressed: () => provider.change == ChangeState.first
-                        ? provider.toggle(ChangeState.second)
-                        : provider.toggle(ChangeState.first),
-                    icon: Icon(
-                      Icons.change_circle,
-                      size: 30,
-                      color: Colors.white.withOpacity(0.8),
-                    ),
-                  ),
-                )
-              ],
-            );
+            return VideoStack();
           default:
             return SizedBox.shrink();
         }
       },
+    );
+  }
+}
+
+class VideoStack extends StatefulWidget {
+  const VideoStack({
+    super.key,
+  });
+
+  @override
+  State<VideoStack> createState() => _VideoStackState();
+}
+
+class _VideoStackState extends State<VideoStack> {
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        VideoPlayerScreen(
+          videoUrl:
+              context.read<RevereseScreenProvider>().change == ChangeState.first
+                  ? "http://10.0.2.2:8000/media/output/processed_video.mp4"
+                  : "http://10.0.2.2:8000/media/output/video.mp4",
+        ),
+        Positioned(
+          top: 10,
+          right: 10,
+          child: IconButton(
+            onPressed: () => context.read<RevereseScreenProvider>().change ==
+                    ChangeState.first
+                ? context
+                    .read<RevereseScreenProvider>()
+                    .toggle(ChangeState.second)
+                : context
+                    .read<RevereseScreenProvider>()
+                    .toggle(ChangeState.first),
+            icon: Icon(
+              Icons.change_circle,
+              size: 30,
+              color: Colors.white.withOpacity(0.8),
+            ),
+          ),
+        )
+      ],
     );
   }
 }
