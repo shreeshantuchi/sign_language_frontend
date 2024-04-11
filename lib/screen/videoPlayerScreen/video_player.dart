@@ -5,8 +5,10 @@ import 'package:video_player/video_player.dart';
 
 class VideoPlayerScreen extends StatefulWidget {
   final String videoUrl;
+  final bool scalVideo;
 
-  const VideoPlayerScreen({required this.videoUrl, super.key});
+  const VideoPlayerScreen(
+      {required this.videoUrl, this.scalVideo = false, super.key});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -50,7 +52,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                   return Container(
                     height: 300,
                     child: Transform.scale(
-                      scale: 1.8,
+                      scale: widget.scalVideo ? 1.8 : 1,
                       child: AspectRatio(
                         aspectRatio: 16 / 9,
                         child: VideoPlayer(_controller),

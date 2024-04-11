@@ -173,6 +173,7 @@ class _VideoStackState extends State<VideoStack> {
     return Stack(
       children: [
         VideoPlayerScreen(
+          scalVideo: true,
           videoUrl:
               context.read<RevereseScreenProvider>().change == ChangeState.first
                   ? "http://10.0.2.2:8000/media/output/processed_video.mp4"
