@@ -27,7 +27,7 @@ class RevereseScreenProvider with ChangeNotifier {
     updateReverseScreenState(ReverseScreenState.fetch);
     notifyListeners();
     final response =
-        await http.get(Uri.parse('http://10.0.2.2:8000/search/$text'));
+        await http.get(Uri.parse('http://10.0.2.2:8000/search2/$text'));
     //  print("object2");
 
     if (response.statusCode == 200) {
