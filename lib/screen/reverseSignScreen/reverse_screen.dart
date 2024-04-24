@@ -158,6 +158,34 @@ class SwitchWidget extends StatelessWidget {
   }
 }
 
+class SwitchVideoWidget extends StatelessWidget {
+  const SwitchVideoWidget({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<RevereseScreenProvider>(
+      builder: (context, provider, child) {
+        print(provider.change);
+        switch (provider.change) {
+          case ChangeState.first:
+            print("first");
+            return VideoPlayerScreen(
+                scalVideo: true,
+                videoUrl:
+                    "http://10.0.2.2:8000/media/output/stick_figure_video.mp4");
+          case ChangeState.second:
+            print("second");
+            return VideoPlayerScreen(
+                scalVideo: true,
+                videoUrl: "http://10.0.2.2:8000/media/output/normal_video.mp4");
+          default:
+            return SizedBox.shrink();
+        }
+      },
+    );
+  }
+}
+
 class VideoStack extends StatefulWidget {
   const VideoStack({
     super.key,
@@ -170,32 +198,22 @@ class VideoStack extends StatefulWidget {
 class _VideoStackState extends State<VideoStack> {
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return Column(
       children: [
-        VideoPlayerScreen(
-          scalVideo: true,
-          videoUrl:
+        SwitchVideoWidget(),
+        IconButton(
+          onPressed: () =>
               context.read<RevereseScreenProvider>().change == ChangeState.first
-                  ? "http://10.0.2.2:8000/media/output/stick_figure_video.mp4"
-                  : "http://10.0.2.2:8000/media/output/video.mp4",
-        ),
-        Positioned(
-          top: 10,
-          right: 10,
-          child: IconButton(
-            onPressed: () => context.read<RevereseScreenProvider>().change ==
-                    ChangeState.first
-                ? context
-                    .read<RevereseScreenProvider>()
-                    .toggle(ChangeState.second)
-                : context
-                    .read<RevereseScreenProvider>()
-                    .toggle(ChangeState.first),
-            icon: Icon(
-              Icons.change_circle,
-              size: 30,
-              color: Colors.white.withOpacity(0.8),
-            ),
+                  ? context
+                      .read<RevereseScreenProvider>()
+                      .toggle(ChangeState.second)
+                  : context
+                      .read<RevereseScreenProvider>()
+                      .toggle(ChangeState.first),
+          icon: Icon(
+            Icons.change_circle,
+            size: 100,
+            color: Color.fromARGB(255, 12, 12, 12).withOpacity(0.8),
           ),
         )
       ],

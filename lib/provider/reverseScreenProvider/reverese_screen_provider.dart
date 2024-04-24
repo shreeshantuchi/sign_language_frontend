@@ -20,6 +20,7 @@ class RevereseScreenProvider with ChangeNotifier {
 
   void toggle(ChangeState state) {
     change = state;
+    print(change);
     notifyListeners();
   }
 
