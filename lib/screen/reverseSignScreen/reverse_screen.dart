@@ -168,14 +168,15 @@ class SwitchVideoWidget extends StatelessWidget {
         print(provider.change);
         switch (provider.change) {
           case ChangeState.first:
-            print("first");
             return VideoPlayerScreen(
+                key: UniqueKey(),
                 scalVideo: true,
                 videoUrl:
                     "http://10.0.2.2:8000/media/output/stick_figure_video.mp4");
           case ChangeState.second:
             print("second");
             return VideoPlayerScreen(
+                key: UniqueKey(),
                 scalVideo: true,
                 videoUrl: "http://10.0.2.2:8000/media/output/normal_video.mp4");
           default:
@@ -198,7 +199,7 @@ class VideoStack extends StatefulWidget {
 class _VideoStackState extends State<VideoStack> {
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Stack(
       children: [
         SwitchVideoWidget(),
         IconButton(
@@ -212,8 +213,8 @@ class _VideoStackState extends State<VideoStack> {
                       .toggle(ChangeState.first),
           icon: Icon(
             Icons.change_circle,
-            size: 100,
-            color: Color.fromARGB(255, 12, 12, 12).withOpacity(0.8),
+            size: 30,
+            color: Colors.white.withOpacity(0.8),
           ),
         )
       ],

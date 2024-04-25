@@ -60,8 +60,11 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                     ),
                   );
                 } else {
-                  return const Center(
-                    child: CircularProgressIndicator(),
+                  return Container(
+                    height: 300,
+                    child: const Center(
+                      child: CircularProgressIndicator(),
+                    ),
                   );
                 }
               },
