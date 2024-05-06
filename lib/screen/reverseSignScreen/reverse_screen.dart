@@ -189,7 +189,7 @@ class _SearchFieldSampleState extends State<SearchFieldSample> {
     return Row(
       children: [
         Container(
-          width: 200,
+          width: 250,
           child: SearchField(
             suggestionDirection: SuggestionDirection.up,
             onSearchTextChanged: (query) {
@@ -376,8 +376,11 @@ class _VideoStackState extends State<VideoStack> {
                       .toggle(ChangeState.first),
           icon: Icon(
             Icons.change_circle,
-            size: 30,
-            color: Colors.white.withOpacity(0.8),
+            size: 50,
+            color: context.watch<RevereseScreenProvider>().change ==
+                    ChangeState.first
+                ? Colors.white.withOpacity(0.5)
+                : Colors.black.withOpacity(0.5),
           ),
         )
       ],
