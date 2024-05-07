@@ -262,7 +262,7 @@ class _SearchFieldSampleState extends State<SearchFieldSample> {
             suggestionState: Suggestion.expand,
             onSuggestionTap: (SearchFieldListItem<String> x) {
               print(textEditingController.text);
-              if (textEditingController.text.isNotEmpty) {
+              if (individualString.isNotEmpty) {
                 individualString.removeLast();
               }
               individualString.add(x.searchKey);

@@ -4,15 +4,10 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:sign_language_record_app/screen/DictionaryScreen/dictionary_screen.dart';
-import 'package:sign_language_record_app/screen/listScreen/list_screen.dart';
 import 'package:sign_language_record_app/screen/reverseSignScreen/reverse_screen.dart';
 import 'package:sign_language_record_app/screen/signLanguageScreen/si_language_screen.dart';
 import 'package:sign_language_record_app/screen/videoEditorScreen/video_editor_screen.dart';
-import 'package:sign_language_record_app/widget/app_button.dart';
-
-import 'package:file_picker/file_picker.dart';
 
 import 'package:image_picker/image_picker.dart';
 
