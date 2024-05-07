@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sign_language_record_app/Api/dictionary_api.dart';
 import 'package:sign_language_record_app/modle/dictionary_modle.dart';
+import 'package:sign_language_record_app/provider/reverseScreenProvider/reverese_screen_provider.dart';
 import 'package:sign_language_record_app/provider/signDetectState/sign_detect_state_Provider.dart';
 import 'package:sign_language_record_app/screen/videoPlayerScreen/video_player.dart';
 import 'package:sign_language_record_app/widget/app_button.dart';
@@ -14,71 +15,6 @@ class DictionaryScreen extends StatefulWidget {
 }
 
 class _DictionaryScreenState extends State<DictionaryScreen> {
-  Future<List<DisctionaryModel>> apiText() async {
-    List<DisctionaryModel> testList = [
-      DisctionaryModel(
-        name: "Namaste",
-        id: 2,
-        videoUrl:
-            "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-      ),
-      DisctionaryModel(
-        name: "Namaste",
-        id: 2,
-        videoUrl: "https://www.youtube.com/watch?v=uEz8ob2aXoo",
-      ),
-      DisctionaryModel(
-        name: "Namaste",
-        id: 2,
-        videoUrl: "https://www.youtube.com/watch?v=uEz8ob2aXoo",
-      ),
-      DisctionaryModel(
-        name: "Namaste",
-        id: 2,
-        videoUrl: "https://www.youtube.com/watch?v=uEz8ob2aXoo",
-      ),
-      DisctionaryModel(
-        name: "Namaste",
-        id: 2,
-        videoUrl: "https://www.youtube.com/watch?v=uEz8ob2aXoo",
-      ),
-      DisctionaryModel(
-          name: "Namaste",
-          id: 2,
-          videoUrl: "https://www.youtube.com/watch?v=uEz8ob2aXoo"),
-      DisctionaryModel(
-          name: "Namaste",
-          id: 2,
-          videoUrl: "https://www.youtube.com/watch?v=uEz8ob2aXoo"),
-      DisctionaryModel(
-          name: "Namaste",
-          id: 2,
-          videoUrl: "https://www.youtube.com/watch?v=uEz8ob2aXoo"),
-      DisctionaryModel(
-          name: "Namaste",
-          id: 2,
-          videoUrl: "https://www.youtube.com/watch?v=uEz8ob2aXoo"),
-      DisctionaryModel(
-          name: "Namaste",
-          id: 2,
-          videoUrl: "https://www.youtube.com/watch?v=uEz8ob2aXoo"),
-      DisctionaryModel(
-          name: "Namaste",
-          id: 2,
-          videoUrl: "https://www.youtube.com/watch?v=uEz8ob2aXoo"),
-      DisctionaryModel(
-          name: "Namaste",
-          id: 2,
-          videoUrl: "https://www.youtube.com/watch?v=uEz8ob2aXoo"),
-      DisctionaryModel(
-          name: "Namaste",
-          id: 2,
-          videoUrl: "https://www.youtube.com/watch?v=uEz8ob2aXoo"),
-    ];
-    await Future.delayed(Duration(seconds: 5));
-    return testList;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -116,10 +52,11 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                               physics: NeverScrollableScrollPhysics(),
                               gridDelegate:
                                   SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2, // Number of columns
+                                childAspectRatio: 4.5,
+                                crossAxisCount: 1, // Number of columns
                                 crossAxisSpacing:
                                     10.0, // Spacing between columns
-                                mainAxisSpacing: 10.0, // Spacing between rows
+                                // Spacing between rows
                               ),
                               itemCount: context
                                   .watch<DictionaryAPi>()
@@ -128,7 +65,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                               itemBuilder: (context, index) {
                                 return Padding(
                                   padding:
-                                      const EdgeInsets.symmetric(vertical: 10),
+                                      const EdgeInsets.symmetric(vertical: 3),
                                   child: AppButton(
                                       height: 80,
                                       vPadding: 20,
@@ -139,8 +76,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                                       onPressed: () async {
                                         modelSheet(context
                                             .read<DictionaryAPi>()
-                                            .filteredDictionary[index]
-                                            .videoUrl);
+                                            .filteredDictionary[index]);
                                       }),
                                 );
                               },
@@ -226,11 +162,11 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
     );
   }
 
-  Future modelSheet(String? url) {
+  Future modelSheet(DisctionaryModel disctionaryModel) {
     return showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        if (url != null) {
+        if (disctionaryModel.stick_url != null) {
           return Container(
             height: 900,
             child: Center(
@@ -238,7 +174,9 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  VideoPlayerScreen(videoUrl: url),
+                  VideoStack(
+                    disctionaryModel: disctionaryModel,
+                  ),
                 ],
               ),
             ),
@@ -253,6 +191,87 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
         }
         // Return the content of the bottom sheet
       },
+    );
+  }
+}
+
+class SwitchVideoWidget extends StatelessWidget {
+  final DisctionaryModel disctionaryModel;
+  const SwitchVideoWidget({Key? key, required this.disctionaryModel})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<RevereseScreenProvider>(
+      builder: (context, provider, child) {
+        print(provider.change);
+        switch (provider.change) {
+          case ChangeState.first:
+            return VideoPlayerScreen(
+                key: UniqueKey(),
+                scalVideo: false,
+                videoUrl: disctionaryModel.stick_url!);
+          case ChangeState.second:
+            print("second");
+            return VideoPlayerScreen(
+                key: UniqueKey(),
+                scalVideo: false,
+                videoUrl: disctionaryModel.videoUrl!);
+          default:
+            return const SizedBox.shrink();
+        }
+      },
+    );
+  }
+}
+
+class VideoStack extends StatefulWidget {
+  final DisctionaryModel disctionaryModel;
+  const VideoStack({
+    super.key,
+    required this.disctionaryModel,
+  });
+
+  @override
+  State<VideoStack> createState() => _VideoStackState();
+}
+
+class _VideoStackState extends State<VideoStack> {
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        SwitchVideoWidget(
+          disctionaryModel: widget.disctionaryModel,
+        ),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(40),
+            color: context.watch<RevereseScreenProvider>().change !=
+                    ChangeState.first
+                ? Colors.white.withOpacity(1)
+                : Color.fromARGB(255, 0, 0, 0).withOpacity(1),
+          ),
+          child: IconButton(
+            onPressed: () => context.read<RevereseScreenProvider>().change ==
+                    ChangeState.first
+                ? context
+                    .read<RevereseScreenProvider>()
+                    .toggle(ChangeState.second)
+                : context
+                    .read<RevereseScreenProvider>()
+                    .toggle(ChangeState.first),
+            icon: Icon(
+              Icons.change_circle,
+              size: 50,
+              color: context.watch<RevereseScreenProvider>().change ==
+                      ChangeState.first
+                  ? Colors.white.withOpacity(1)
+                  : Color.fromARGB(255, 0, 0, 0).withOpacity(1),
+            ),
+          ),
+        )
+      ],
     );
   }
 }

@@ -48,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 40),
-        child: buttonList(),
+        child: SingleChildScrollView(child: buttonList()),
         // child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         //   Row(
         //     mainAxisAlignment: MainAxisAlignment.spaceBetween,

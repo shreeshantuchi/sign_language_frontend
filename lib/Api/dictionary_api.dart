@@ -31,7 +31,8 @@ class DictionaryAPi with ChangeNotifier {
           DisctionaryModel(
               name: element["name"],
               id: element["id"],
-              videoUrl: element["best_video_link"]),
+              videoUrl: element["best_video_link"],
+              stick_url: element["stick_video_link"]),
         );
       }
       filteredDictionary = dictionary;
