@@ -262,7 +262,9 @@ class _SearchFieldSampleState extends State<SearchFieldSample> {
             suggestionState: Suggestion.expand,
             onSuggestionTap: (SearchFieldListItem<String> x) {
               print(textEditingController.text);
-              individualString.removeLast();
+              if (textEditingController.text.isNotEmpty) {
+                individualString.removeLast();
+              }
               individualString.add(x.searchKey);
               textEditingController.text = joinWords(individualString);
             },
@@ -340,7 +342,7 @@ class SwitchVideoWidget extends StatelessWidget {
             print("second");
             return VideoPlayerScreen(
                 key: UniqueKey(),
-                scalVideo: true,
+                scalVideo: false,
                 videoUrl: "http://10.0.2.2:8000/media/output/normal_video.mp4");
           default:
             return const SizedBox.shrink();
